@@ -325,6 +325,7 @@ Append a row for every run. Never delete rows.
 | 2026-10-09 | Linux container | `uv run python -m app.fetch_models` | Fail. The container's network policy blocks huggingface.co. The `models` tests are left to CI. |
 | 2026-10-09 | Linux container, Chromium 141 through Playwright | The app in fake mode, driven by the keyboard and the mouse: create a profile, upload the PDF fixture, build the plan, add the job description and see a Gap, a session with a follow-up, a `#down` answer with Retry, end early with the confirmation, summary, progress, Test model. Skip link, visible focus, no request to any host but 127.0.0.1. | Pass. Stands in for steps 2 to 10, 13 and 14 until they run on Windows and a Mac. |
 | 2026-10-09 | Linux container | A request to Ollama or Claude | Not run. ollama.com and the Ollama registry are blocked, and no API key is present. |
+| 2026-10-09 | Linux container, headless Chromium through Playwright | The recorder with a fake microphone fed the speech fixture: Record shows, the state is announced, Stop uploads the clip, the route's error appears in the live region. The read aloud button appears when a local English voice exists. | Pass, up to transcription, which needs the speech model that this container cannot download |
 | open | Mac | Anything at all | Not run |
 | open | Both | A request to a local Ollama model | Not run. No local model is pulled on the reference machine. |
 | open | Both | A request to Claude | Not run |

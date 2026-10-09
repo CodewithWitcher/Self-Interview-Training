@@ -186,3 +186,40 @@ def test_silence_gives_no_speech(real):
         w.writeframes(b"\x00\x00" * 32000)
     with pytest.raises(voice.VoiceError, match="No speech"):
         voice.transcribe(buf.getvalue(), real)
+
+
+def test_voice_turn_shows_metrics_and_text_turn_does_not(client, conn):
+    from tests.helpers import answer
+
+    pid = ready_profile(client)
+    sid = start_session(client, conn, pid)
+    a1, t1 = current(conn, sid)
+    with conn:
+        conn.execute(
+            "UPDATE turns SET input_mode = 'voice', speech_ms = 11000, first_word_delay_ms = 1230, "
+            "wpm = 147, filler_count = 3 WHERE id = ?",
+            (t1["id"],),
+        )
+    answer(client, conn, pid, sid, "spoken answer")
+    a2, _ = current(conn, sid)
+    answer(client, conn, pid, sid, "typed answer")
+    voice_page = client.get(f"/profiles/{pid}/sessions/{sid}/attempts/{a1}").text
+    assert "147 words per minute" in voice_page
+    assert "Filler words: 3" in voice_page
+    assert "1.2 seconds" in voice_page
+    assert "approximate" in voice_page
+    text_page = client.get(f"/profiles/{pid}/sessions/{sid}/attempts/{a2}").text
+    assert "words per minute" not in text_page and "Filler words" not in text_page
+    scores = [r[0] for r in conn.execute("SELECT score FROM attempts WHERE id IN (?, ?)", (a1, a2))]
+    assert scores == [75, 75]
+
+
+def test_answer_page_offers_voice_tools_hidden_without_script(client, conn):
+    pid = ready_profile(client)
+    sid = start_session(client, conn, pid)
+    aid, _ = current(conn, sid)
+    text = client.get(f"/profiles/{pid}/sessions/{sid}/attempts/{aid}").text
+    assert '<script src="/static/voice.js" defer></script>' in text
+    assert 'id="record-button" class="secondary" aria-pressed="false" hidden' in text
+    assert 'id="speak-button" class="secondary" hidden' in text
+    assert 'aria-live="polite"' in text

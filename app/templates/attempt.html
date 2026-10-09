@@ -1,5 +1,6 @@
 {% extends "profile_base.html" %}
 {% block title %}Question {{ attempt.ord }} of {{ total }} - {{ profile.name }}{% endblock %}
+{% block head %}{% if state == "answer" %}<script src="/static/voice.js" defer></script>{% endif %}{% endblock %}
 {% block content %}
 {% include "_badge.html" %}
 {% for m in messages %}<p class="notice" role="status">{{ m }}</p>{% endfor %}
@@ -27,6 +28,11 @@
 {% if state == "answer" %}
 <form method="post" action="/profiles/{{ profile.id }}/sessions/{{ session.id }}/attempts/{{ attempt.id }}/answer" class="stack" data-busy id="answer-form">
   <input type="hidden" name="turn_id" value="{{ latest.id }}">
+  <div id="voice-tools" class="row" data-audio-url="/profiles/{{ profile.id }}/sessions/{{ session.id }}/attempts/{{ attempt.id }}/audio" data-prompt="{{ latest.prompt }}">
+    <button type="button" id="speak-button" class="secondary" hidden>Read {% if latest.level > 0 %}follow-up{% else %}question{% endif %} aloud</button>
+    <button type="button" id="record-button" class="secondary" aria-pressed="false" hidden>Record answer</button>
+  </div>
+  <p id="voice-status" class="hint" role="status" aria-live="polite"></p>
   <label for="answer">Your answer{% if latest.level > 0 %} to the follow-up{% endif %}</label>
   <textarea id="answer" name="text" rows="10" maxlength="{{ answer_max }}" data-counter="answer-count"
             {% if answer_error %}aria-invalid="true" aria-describedby="answer-error"{% endif %}>{{ draft }}</textarea>

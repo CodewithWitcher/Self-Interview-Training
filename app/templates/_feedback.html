@@ -23,6 +23,15 @@
   {% endfor %}
 </ul>
 {% endif %}
+{% if t.input_mode == "voice" %}
+<h3>Delivery</h3>
+<ul>
+  <li>Pace: {% if t.wpm is not none %}{{ t.wpm }} words per minute{% else %}too short to measure{% endif %}</li>
+  <li>Filler words: {{ t.filler_count }}</li>
+  <li>Delay before the first word: {{ "%.1f" | format(t.first_word_delay_ms / 1000) }} seconds</li>
+</ul>
+<p class="hint">These are approximate, measured from the recording, and never change the score.</p>
+{% endif %}
 <p class="hint">Scored by {{ t.eval_model }}</p>
 {% endif %}
 {% endif %}
