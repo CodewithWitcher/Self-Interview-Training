@@ -275,18 +275,15 @@ Next links to the session route above. The profile home links to it too while a 
 ### 7.1 Contract
 
 ```python
-def chat(
-    provider: str, model: str, system: str, user: str, schema: type[T], *, creative: bool = False
-) -> T: ...
-
+def chat(provider: str, model: str, system: str, user: str,
+         schema: type[T], *, settings: Settings, creative: bool = False,
+         check: Callable[[T], T] | None = None) -> T: ...
 
 def list_models(settings: Settings) -> list[ModelOption]: ...
-
-
 # ModelOption: provider, model, label, is_local
 ```
 
-`chat` returns a validated instance of `schema` or raises a subclass of `LLMError`. `creative=True` is used only for question generation. Callers never see provider details.
+`chat` returns a validated instance of `schema` or raises a subclass of `LLMError`. `creative=True` is used only for question generation. Callers never see provider details. `check` applies a prompt's normalisation rules and raises `InvalidReply` when the reply must be rejected. A rejected reply is retried once, like a reply that fails validation.
 
 ### 7.2 Ollama
 
@@ -322,12 +319,12 @@ The request shape follows Ollama's API reference. It has not been exercised yet,
 client = anthropic.Anthropic(timeout=settings.llm_timeout_s, max_retries=1)
 
 response = client.beta.messages.parse(
-    model=model,  # default "claude-opus-5-5"
+    model=model,                                   # default "claude-opus-5-5"
     max_tokens=16000,
     system=system,
     messages=[{"role": "user", "content": user}],
-    output_format=schema,  # the Pydantic class
-    output_config={"effort": settings.anthropic_effort},  # default "medium"
+    output_format=schema,                          # the Pydantic class
+    output_config={"effort": settings.anthropic_effort},   # default "medium"
     betas=["server-side-fallback-2026-07-01"],
     fallbacks="default",
 )

@@ -33,7 +33,7 @@ M1, core loop:
 - [x] T07 Profiles
 - [x] T08 Embeddings
 - [x] T09 Resume intake
-- [ ] T10 Model layer
+- [x] T10 Model layer
 - [ ] T11 Prompts and schemas
 - [ ] T12 Scoring core
 - [ ] T13 Fake provider

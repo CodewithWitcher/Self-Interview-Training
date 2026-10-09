@@ -39,3 +39,5 @@ markers = [
 
 [tool.ruff]
 line-length = 100
+# Ruff also formats Python blocks inside Markdown. The documents keep their own layout.
+extend-exclude = ["*.md"]

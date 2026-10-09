@@ -21,7 +21,6 @@ from pydantic import BaseModel
 
 Score = Literal[0, 1, 2, 3, 4]
 
-
 class PlanTopic(BaseModel):
     name: str
     kind: Literal["technical", "behavioral"]
@@ -29,11 +28,9 @@ class PlanTopic(BaseModel):
     source: Literal["resume", "jd", "both"]
     rationale: str
 
-
 class Plan(BaseModel):
     summary: str
     topics: list[PlanTopic]
-
 
 class NewQuestion(BaseModel):
     text: str
@@ -41,10 +38,8 @@ class NewQuestion(BaseModel):
     key_points: list[str]
     reference_answer: str
 
-
 class QuestionBatch(BaseModel):
     questions: list[NewQuestion]
-
 
 class Evaluation(BaseModel):
     strengths: list[str]
@@ -56,7 +51,6 @@ class Evaluation(BaseModel):
     structure: Score
     feedback: str
     follow_up: str
-
 
 class Ping(BaseModel):
     ok: bool
@@ -477,8 +471,8 @@ Copies scored 0.85 to 0.93. Different questions on the same subject scored 0.70 
 
 ```python
 model = WhisperModel(
-    settings.whisper_model,  # default "base.en"
-    device=settings.whisper_device,  # default "cpu"
+    settings.whisper_model,                 # default "base.en"
+    device=settings.whisper_device,         # default "cpu"
     compute_type=settings.whisper_compute,  # default "int8"
     download_root=str(settings.data_dir / "models" / "whisper"),
     local_files_only=True,

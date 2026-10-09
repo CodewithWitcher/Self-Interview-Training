@@ -148,7 +148,11 @@ markers = [
 
 [tool.ruff]
 line-length = 100
+# Ruff also formats Python blocks inside Markdown. The documents keep their own layout.
+extend-exclude = ["*.md"]
 ```
+
+Task T10 added the `extend-exclude` line. Without it, `ruff format --check .` fails on the Python examples in `docs/`.
 
 Versions that the full list, including the two M3 lines, resolved to on 2026-10-08: fastapi 0.143.0, starlette 1.7.0, uvicorn 0.54.0, jinja2 3.1.6, python-multipart 0.0.32, python-dotenv 1.2.4, httpx 0.28.1, anthropic 1.12.1, pydantic 2.14.0, pypdf 6.19.0, numpy 2.5.3, fastembed 0.9.0, onnxruntime 1.30.0, faster-whisper 1.2.1, ctranslate2 4.8.2, av 18.1.0, pytest 9.1.1, ruff 0.16.10. `uv.lock` is the source of truth once it exists. The file exactly as shown was also locked and installed, and its three test selections were run: `pytest`, `pytest -m models` and `pytest -m live` each pick only their own tests.
 
