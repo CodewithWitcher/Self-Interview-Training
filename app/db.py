@@ -4,8 +4,9 @@ import sqlite3
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import Request
+from fastapi import Depends, Request
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 
@@ -46,6 +47,9 @@ def get_db(request: Request) -> Iterator[sqlite3.Connection]:
         yield conn
     finally:
         conn.close()
+
+
+Conn = Annotated[sqlite3.Connection, Depends(get_db)]
 
 
 def utc_now() -> str:

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Profiles{% endblock %}
+{% block content %}
+<h1>Profiles</h1>
+{% if profiles %}
+<ul class="profile-list">
+  {% for p in profiles %}
+  <li><a href="/profiles/{{ p.id }}">{{ p.name }}</a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty">No profiles yet. A profile holds one person's resume, plan, questions and history. Create one to begin.</p>
+{% endif %}
+
+<h2>Create a profile</h2>
+<form method="post" action="/profiles" class="stack">
+  <label for="name">Profile name, 1 to 60 characters</label>
+  <input id="name" name="name" type="text" required maxlength="60" value="{{ form_name }}"
+         {% if error %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+  {% if error %}<p class="field-error" id="name-error">{{ error }}</p>{% endif %}
+  <button type="submit">Create profile</button>
+</form>
+{% endblock %}

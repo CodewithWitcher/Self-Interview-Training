@@ -1,0 +1,101 @@
+/* One stylesheet. Colours meet WCAG AA contrast on white. */
+:root {
+  --text: #1a1a1a;
+  --muted: #4a4a4a;
+  --bg: #ffffff;
+  --panel: #f3f4f6;
+  --line: #c4c8cf;
+  --accent: #1d4ed8;
+  --accent-dark: #1e3a8a;
+  --ok: #166534;
+  --bad: #b91c1c;
+  --warn-bg: #fef3c7;
+  --focus: #b45309;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+main { max-width: 52rem; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+main:focus { outline: none; }
+
+a { color: var(--accent); }
+a:hover { color: var(--accent-dark); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--bg); padding: 0.5rem 1rem; }
+.skip-link:focus { left: 0.5rem; z-index: 10; }
+
+.site-header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
+  padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header ul { display: flex; flex-wrap: wrap; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+
+h1 { font-size: 1.6rem; margin: 0.5rem 0 1rem; }
+h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; }
+h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+
+.stack { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.stack > textarea, .stack > input[type=text] { width: 100%; }
+.row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+
+label { font-weight: 600; }
+input[type=text], input[type=file], textarea, select {
+  font: inherit; padding: 0.45rem 0.55rem; border: 1px solid var(--muted); border-radius: 4px; background: var(--bg); color: var(--text);
+}
+textarea { min-height: 10rem; resize: vertical; }
+fieldset { border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem 1rem; margin: 0; }
+legend { font-weight: 600; padding: 0 0.25rem; }
+
+button, .button {
+  font: inherit; cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px;
+  border: 1px solid var(--accent); background: var(--accent); color: #fff; text-decoration: none; display: inline-block;
+}
+button.secondary, .button.secondary { background: var(--bg); color: var(--accent); }
+button.danger { background: var(--bad); border-color: var(--bad); }
+button[disabled] { opacity: 0.7; cursor: progress; }
+
+.notice { background: var(--panel); border-left: 4px solid var(--accent); padding: 0.5rem 0.75rem; }
+.error-box, .field-error { color: var(--bad); font-weight: 600; }
+.error-box { border-left: 4px solid var(--bad); padding: 0.5rem 0.75rem; background: #fef2f2; }
+.empty { color: var(--muted); }
+.muted { color: var(--muted); }
+.hint { color: var(--muted); font-size: 0.9rem; margin: 0; }
+
+.badge { display: inline-block; padding: 0.35rem 0.7rem; border-radius: 4px; font-weight: 600; border: 2px solid; }
+.badge.local { color: var(--ok); border-color: var(--ok); background: #f0fdf4; }
+.badge.cloud { color: #7c2d12; border-color: #c2410c; background: var(--warn-bg); }
+
+table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
+th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--panel); }
+
+.pass { color: var(--ok); font-weight: 700; }
+.fail { color: var(--bad); font-weight: 700; }
+.skip { color: var(--muted); font-weight: 700; }
+
+.thread { list-style: none; padding: 0; margin: 0; }
+.turn { border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem; }
+.prompt { font-weight: 600; }
+.answer { white-space: pre-wrap; background: var(--panel); padding: 0.5rem 0.75rem; border-radius: 4px; }
+.excerpt { white-space: pre-wrap; border-left: 4px solid var(--line); padding: 0.25rem 0.75rem; color: var(--muted); }
+.score { font-size: 1.3rem; font-weight: 700; }
+.dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.25rem 1rem; margin: 0.5rem 0; padding: 0; list-style: none; }
+.reference { white-space: pre-wrap; }
+
+meter { width: 12rem; height: 1rem; }
+.readiness { font-size: 2.5rem; font-weight: 700; margin: 0; }
+
+.counter { font-size: 0.9rem; color: var(--muted); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
