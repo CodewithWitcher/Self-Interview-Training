@@ -50,7 +50,7 @@ M2, retention and targeting:
 
 - [x] T22 Job description mode
 - [x] T23 Spaced repetition
-- [ ] T24 Readiness and progress
+- [x] T24 Readiness and progress
 - [ ] T25 v1 hardening
 
 M3, voice:

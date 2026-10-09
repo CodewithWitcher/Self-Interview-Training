@@ -1,0 +1,62 @@
+{% extends "profile_base.html" %}
+{% block title %}Progress - {{ profile.name }}{% endblock %}
+{% block content %}
+<h1>Progress</h1>
+{% if not has_history %}
+<p class="empty">No answers yet, so there is nothing to show. Finish a practice session and your readiness, topic scores and past sessions appear here.</p>
+<p><a class="button" href="/profiles/{{ profile.id }}">Start a session</a></p>
+{% else %}
+<h2>Readiness</h2>
+{% if readiness is not none %}
+<p class="readiness">{{ readiness }}<span class="muted"> / 100</span></p>
+<p class="hint">Your latest score on every question of your active topics, weighted by topic weight. Recent answers count more. A topic with fewer than 5 answered questions counts only partly, and a topic never practised counts as zero.</p>
+{% else %}
+<p class="empty">No active topic. Give a topic a weight above 0 on the plan page.</p>
+{% endif %}
+{% if weakest %}<p>Weakest rubric dimension: <strong>{{ weakest }}</strong>.</p>{% endif %}
+
+<h2>Topics</h2>
+<table>
+  <caption class="visually-hidden">Score per active topic</caption>
+  <thead><tr><th scope="col">Topic</th><th scope="col">Weight</th><th scope="col">Score</th><th scope="col">Answered</th></tr></thead>
+  <tbody>
+  {% for item in topics %}
+  {% set r = item.result %}
+  <tr>
+    <th scope="row">{{ item.topic.name }}</th>
+    <td>{{ item.topic.weight }}</td>
+    <td>
+      {% if r.score is none %}
+      <meter min="0" max="100" value="0" aria-label="{{ item.topic.name }} score">0</meter> Not practised (0)
+      {% else %}
+      {% set shown = (r.score + 0.5) | int %}
+      <meter min="0" max="100" value="{{ shown }}" aria-label="{{ item.topic.name }} score">{{ shown }}</meter> {{ shown }}
+      {% endif %}
+    </td>
+    <td>{{ r.answered }} question{% if r.answered != 1 %}s{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Past sessions</h2>
+{% if sessions %}
+<table>
+  <caption class="visually-hidden">Finished sessions</caption>
+  <thead><tr><th scope="col">Date</th><th scope="col">Model</th><th scope="col">Questions</th><th scope="col">Average</th></tr></thead>
+  <tbody>
+  {% for s in sessions %}
+  <tr>
+    <td><a href="/profiles/{{ profile.id }}/sessions/{{ s.session.id }}/summary">{{ s.date }}</a></td>
+    <td>{{ s.session.provider }}:{{ s.session.model }}</td>
+    <td>{{ s.session.questions }}</td>
+    <td>{{ s.average }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No finished sessions yet.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

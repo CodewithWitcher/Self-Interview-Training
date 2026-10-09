@@ -16,7 +16,7 @@ from starlette.responses import PlainTextResponse
 
 from app import db, embeddings
 from app.config import Settings, load_settings
-from app.routes import plan, profiles, render, resume, sessions, status
+from app.routes import plan, profiles, progress, render, resume, sessions, status
 
 log = logging.getLogger("app")
 
@@ -113,5 +113,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(resume.router)
     app.include_router(plan.router)
     app.include_router(sessions.router)
+    app.include_router(progress.router)
     app.include_router(status.router)
     return app

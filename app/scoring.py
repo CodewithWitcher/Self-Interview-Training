@@ -3,8 +3,10 @@
 Rounding is always half up. Python's round() rounds half to even and is never used here.
 """
 
+import math
 from collections.abc import Iterable, Mapping
-from datetime import date, timedelta
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
 
 MAX_FOLLOW_UPS = 2
 PASS_SCORE = 75
@@ -83,3 +85,36 @@ def srs_next(step: int | None, score: int, today: date) -> tuple[int | None, dat
     if score >= REPEAT_SCORE:
         return step, today + timedelta(days=SRS_LADDER_DAYS[step])
     return 0, today + timedelta(days=SRS_LADDER_DAYS[0])
+
+
+@dataclass(frozen=True)
+class TopicReadiness:
+    score: float | None  # None when the topic has no rows
+    coverage: float
+    readiness: float
+    answered: int
+
+
+def topic_score(rows: Iterable[tuple[int, datetime]], now: datetime) -> TopicReadiness:
+    """Recency-weighted score of one topic (PS 7.4). rows are (score, completed_at)."""
+    recent = sorted(rows, key=lambda r: r[1], reverse=True)[:READINESS_WINDOW]
+    if not recent:
+        return TopicReadiness(None, 0.0, 0.0, 0)
+    total_w = total = 0.0
+    for score, completed in recent:
+        age_days = max(0.0, (now - completed).total_seconds() / 86400)
+        w = 0.5 ** (age_days / READINESS_HALF_LIFE_DAYS)
+        total_w += w
+        total += w * score
+    value = total / total_w
+    coverage = min(1.0, len(recent) / READINESS_FULL_COVERAGE)
+    return TopicReadiness(value, coverage, value * coverage, len(recent))
+
+
+def readiness(topics: Iterable[tuple[int, TopicReadiness]]) -> int | None:
+    """Weighted mean of topic readiness over active topics, rounded half up. None without one."""
+    active = [(w, t) for w, t in topics if w > 0]
+    total_weight = sum(w for w, _ in active)
+    if total_weight == 0:
+        return None
+    return math.floor(sum(w * t.readiness for w, t in active) / total_weight + 0.5)

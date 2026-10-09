@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{{ profile.name }}</h1>
 
-<p><strong>Due today: {{ due }}</strong> <span class="muted">questions to review</span></p>
+<p>{% if readiness is not none %}<strong>Readiness: {{ readiness }}</strong> <span class="muted">out of 100</span>. {% endif %}<strong>Due today: {{ due }}</strong> <span class="muted">questions to review</span>. <a href="/profiles/{{ profile.id }}/progress">See progress</a></p>
 
 {% if active %}
 <h2>Session in progress</h2>

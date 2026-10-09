@@ -4,7 +4,7 @@ import sqlite3
 
 from fastapi import APIRouter, Form, Request
 
-from app import sessions
+from app import progress, sessions
 from app.db import Conn, utc_now
 from app.routes import load_profile, redirect, render
 
@@ -51,6 +51,7 @@ def profile_page(request: Request, conn: sqlite3.Connection, profile, status_cod
         "active": active,
         "active_position": sessions.progress(conn, active["id"]) if active else None,
         "due": sessions.due_count(conn, profile["id"], request.app.state.today()),
+        "readiness": progress.readiness_value(conn, profile["id"], request.app.state.today()),
         "form_review_only": False,
     }
     context.update(start_form_context(conn, profile, request.app.state.settings))
