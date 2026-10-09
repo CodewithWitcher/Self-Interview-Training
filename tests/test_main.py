@@ -70,3 +70,8 @@ def test_exception_shows_500_page_without_traceback(settings):
 def test_static_files_are_served(client):
     assert client.get("/static/app.css").status_code == 200
     assert client.get("/static/app.js").status_code == 200
+
+
+def test_oversized_body_is_refused(client):
+    r = client.post("/profiles", content=b"x", headers={"Content-Length": str(30 * 1024 * 1024)})
+    assert r.status_code == 413

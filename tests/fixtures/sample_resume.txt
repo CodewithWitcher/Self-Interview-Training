@@ -1,0 +1,20 @@
+Jordan Lee
+Senior Backend Engineer
+
+Experience
+Northwind Payments, Senior Backend Engineer, 2021 to 2026
+Built event pipelines on Apache Kafka that process 2 million payment events a day.
+Designed the ledger service in Python with FastAPI and PostgreSQL, cutting p95 latency from 900 ms to 120 ms.
+Wrote SQL migrations and query plans for a 3 TB reporting database.
+Led an incident review process adopted by four teams.
+
+Contoso Retail, Software Engineer, 2018 to 2021
+Maintained a Django order service and its Celery workers.
+Introduced pytest and raised test coverage from 40 to 85 percent.
+Mentored two junior engineers through their first on-call rotations.
+
+Skills
+Python, SQL, PostgreSQL, Kafka, FastAPI, Docker, AWS, pytest
+
+Education
+BSc Computer Science, University of Leeds, 2018

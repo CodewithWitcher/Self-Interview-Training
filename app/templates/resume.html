@@ -1,0 +1,44 @@
+{% extends "profile_base.html" %}
+{% block title %}Resume - {{ profile.name }}{% endblock %}
+{% block content %}
+<h1>Resume</h1>
+
+{% if review_text is not none %}
+<h2>Review and save</h2>
+<p>Correct anything the extraction got wrong. Nothing is saved until you press Save.</p>
+<form method="post" action="/profiles/{{ profile.id }}/resume" class="stack" data-busy>
+  <input type="hidden" name="name" value="{{ review_name }}">
+  <label for="review">Resume text, 200 to {{ "{:,}".format(max_chars) }} characters</label>
+  <textarea id="review" name="text" rows="24" data-counter="review-count"
+            {% if save_error %}aria-invalid="true" aria-describedby="review-error"{% endif %}>{{ review_text }}</textarea>
+  <p class="counter" id="review-count" aria-live="polite"></p>
+  {% if save_error %}<p class="field-error" id="review-error">{{ save_error }}</p>{% endif %}
+  <button type="submit">Save resume</button>
+</form>
+<p><a href="/profiles/{{ profile.id }}/resume">Cancel</a></p>
+{% else %}
+
+{% if profile.resume_text %}
+<h2>Saved resume{% if profile.resume_name %}, from {{ profile.resume_name }}{% endif %}</h2>
+<form method="post" action="/profiles/{{ profile.id }}/resume/extract" class="stack">
+  <label for="current">Saved text. Edit it and press Review to change it.</label>
+  <textarea id="current" name="text" rows="14">{{ profile.resume_text }}</textarea>
+  <button type="submit" class="secondary">Review changes</button>
+</form>
+<p class="hint">Saving a new resume replaces this one. Your questions and history are kept.</p>
+{% else %}
+<p class="empty">No resume yet. Upload a file or paste the text. The app builds your plan and resume questions from it.</p>
+{% endif %}
+
+<h2>{% if profile.resume_text %}Replace it{% else %}Add your resume{% endif %}</h2>
+<form method="post" action="/profiles/{{ profile.id }}/resume/extract" enctype="multipart/form-data" class="stack" data-busy>
+  {% if upload_error %}<p class="error-box" role="alert">{{ upload_error }}</p>{% endif %}
+  <label for="file">A PDF, TXT or MD file of at most 5 MB</label>
+  <input id="file" name="file" type="file" accept=".pdf,.txt,.md">
+  <label for="paste">Or paste the text</label>
+  <textarea id="paste" name="text" rows="10">{{ paste_text }}</textarea>
+  <p class="hint">The original file is never stored. Only the text you review and save is kept.</p>
+  <button type="submit">Review</button>
+</form>
+{% endif %}
+{% endblock %}

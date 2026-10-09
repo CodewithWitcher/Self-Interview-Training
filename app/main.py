@@ -10,18 +10,24 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.formparsers import MultiPartParser
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import PlainTextResponse
 
 from app import db, embeddings
 from app.config import Settings, load_settings
-from app.routes import profiles, render, status
+from app.routes import profiles, render, resume, status
 
 log = logging.getLogger("app")
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 ALLOWED_FETCH_SITES = {"same-origin", "none"}
+# The largest upload is a 25 MB recording (DM 5). Anything bigger is refused before parsing.
+MAX_BODY_BYTES = 27 * 1024 * 1024
+
+# AR 9 rules 7 and 13: uploads stay in memory and are never spooled to a temporary file.
+MultiPartParser.spool_max_size = MAX_BODY_BYTES
 
 
 def startup(settings: Settings) -> None:
@@ -55,6 +61,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.middleware("http")
     async def reject_cross_site_posts(request: Request, call_next):
+        length = request.headers.get("content-length", "")
+        if length.isdigit() and int(length) > MAX_BODY_BYTES:
+            return PlainTextResponse("The upload is too large.", status_code=413)
         if request.method not in ("GET", "HEAD", "OPTIONS"):
             origin = request.headers.get("origin")
             site = request.headers.get("sec-fetch-site")
@@ -100,5 +109,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.include_router(profiles.router)
+    app.include_router(resume.router)
     app.include_router(status.router)
     return app

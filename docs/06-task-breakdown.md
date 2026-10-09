@@ -32,7 +32,7 @@ M1, core loop:
 
 - [x] T07 Profiles
 - [x] T08 Embeddings
-- [ ] T09 Resume intake
+- [x] T09 Resume intake
 - [ ] T10 Model layer
 - [ ] T11 Prompts and schemas
 - [ ] T12 Scoring core
