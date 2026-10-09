@@ -34,7 +34,7 @@ M1, core loop:
 - [x] T08 Embeddings
 - [x] T09 Resume intake
 - [x] T10 Model layer
-- [ ] T11 Prompts and schemas
+- [x] T11 Prompts and schemas
 - [ ] T12 Scoring core
 - [ ] T13 Fake provider
 - [ ] T14 Prep plan
