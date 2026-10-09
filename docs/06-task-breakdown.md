@@ -1,6 +1,6 @@
 # Task breakdown
 
-Status: draft 1, written 2026-10-08. 31 tasks in four milestones. No task has been started.
+Status: draft 1, written 2026-10-08. 31 tasks in four milestones. Updated 2026-10-09: every task is built. The unticked ones say on their line what they wait for.
 
 Specifications: [product requirements](01-product-requirements.md) (PR), [architecture](02-architecture.md) (AR), [data model](03-data-model.md) (DM), [prompts and scoring](04-prompts-and-scoring.md) (PS), [setup guide](05-setup-guide.md) (SG). A reference such as "PS 7.3" means section 7.3 of that document. "F5.6" means line 6 of feature F5 in the product requirements.
 

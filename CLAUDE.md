@@ -1,6 +1,6 @@
 # Self Interview Training
 
-A private interview practice app that runs locally on Windows and Mac. FastAPI with server-rendered HTML, one SQLite file, local models through Ollama, Claude as an optional cloud model. No code exists yet. The specifications in `docs/` are complete and are the source of truth.
+A private interview practice app that runs locally on Windows and Mac. FastAPI with server-rendered HTML, one SQLite file, local models through Ollama, Claude as an optional cloud model. The code covers every task in `docs/06-task-breakdown.md`; the unticked ones wait only on the owner's machines, a model or CI. The specifications in `docs/` are the source of truth.
 
 ## Read first
 
@@ -76,4 +76,6 @@ Design:
 
 - Python 3.13 through uv. Supported: Windows 10 or 11 on x64, and macOS 14 or later on Apple Silicon.
 - The owner's Windows machine runs Windows PowerShell 5.1.
-- Section 9 of the setup guide lists what has been verified. Nothing has run on a Mac yet, and no model has been called yet.
+- Section 9 of the setup guide lists what has been verified. Nothing has run on a Mac yet, and no real model has been called yet.
+- Ruff also formats Python blocks inside Markdown, so `pyproject.toml` excludes `*.md`. Keep that line.
+- `uv sync` refuses Linux, which the lock does not cover. In a Linux development container, install the locked versions with `uv export` and `uv pip install`, then run commands with `UV_NO_SYNC=1`.
