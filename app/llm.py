@@ -1,7 +1,9 @@
 """The model layer: one function, two providers and a fake (AR 7)."""
 
+import itertools
 import json
 import logging
+import re
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -11,7 +13,7 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from app.config import Settings
-from app.prompts import Ping
+from app.prompts import Evaluation, NewQuestion, Ping, Plan, PlanTopic, QuestionBatch
 
 log = logging.getLogger(__name__)
 
@@ -201,9 +203,101 @@ def _claude(settings, model, system, user, schema):
 # Fake
 
 
+_fake_counter = itertools.count(1)
+
+FAKE_PLAN_TOPICS = [
+    ("Python", "technical", 5),
+    ("SQL", "technical", 4),
+    ("System design", "technical", 3),
+    ("Testing", "technical", 2),
+    ("Teamwork", "behavioral", 3),
+    ("Ownership", "behavioral", 2),
+]
+
+
+def _tag_block(user: str, tag: str) -> str:
+    match = re.search(rf"<{tag}>\n(.*?)\n</{tag}>", user, re.DOTALL)
+    return match.group(1) if match else "none"
+
+
+def _line_value(user: str, label: str) -> str:
+    match = re.search(rf"^{label}: (.*)$", user, re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
+def _fake_plan(user: str) -> Plan:
+    has_jd = _tag_block(user, "job_description") != "none"
+    topics = []
+    for name, kind, weight in FAKE_PLAN_TOPICS:
+        source = "both" if has_jd and name == "Python" else "resume"
+        topics.append(
+            PlanTopic(name=name, kind=kind, weight=weight, source=source, rationale=f"Fake {name}.")
+        )
+    if has_jd:
+        topics.append(
+            PlanTopic(
+                name="Kubernetes", kind="technical", weight=4, source="jd", rationale="Fake gap."
+            )
+        )
+    return Plan(summary="Fake plan", topics=topics)
+
+
+def _fake_questions(user: str) -> QuestionBatch:
+    topic = _line_value(user, "Topic")
+    kind = _line_value(user, "Kind")
+    n = int(_line_value(user, "Number of questions") or 1)
+    questions = []
+    for position in range(1, n + 1):
+        k = next(_fake_counter)
+        words = " ".join(f"w{k}x{i}" for i in range(6))
+        questions.append(
+            NewQuestion(
+                text=f"Fake {topic} question {k}: {words}",
+                source=position if kind == "resume_probe" else 0,
+                key_points=[f"Fake key point {i}" for i in (1, 2, 3)],
+                reference_answer=f"Fake reference answer {k}.",
+            )
+        )
+    return QuestionBatch(questions=questions)
+
+
+def _fake_evaluation(user: str) -> Evaluation:
+    answer = _tag_block(user, "answer")
+    if "#invalid" in answer:
+        raise LLMOutputError("The fake model was told to fail (#invalid).")
+    if "#down" in answer:
+        raise LLMUnavailable("The fake model was told to be unreachable (#down).")
+    dims = [3, 3, 3, 3]
+    if "#strong" in answer:
+        dims = [4, 4, 4, 4]
+    elif "#weak" in answer:
+        dims = [1, 1, 1, 1]
+    elif "#wrong" in answer:
+        dims = [0, 3, 3, 3]
+    left = int(_line_value(user, "follow_ups_left") or 0)
+    follow_up = "Fake follow-up: tell me more." if "#followup" in answer and left > 0 else ""
+    return Evaluation(
+        strengths=["Fake strength."],
+        gaps=["Fake gap."],
+        key_points_hit=[1],
+        correctness=dims[0],
+        depth=dims[1],
+        clarity=dims[2],
+        structure=dims[3],
+        feedback="Fake feedback. Add one concrete example.",
+        follow_up=follow_up,
+    )
+
+
 def _fake[T: BaseModel](user: str, schema: type[T]) -> T:
     if schema is Ping:
         return Ping(ok=True)
+    if schema is Plan:
+        return _fake_plan(user)
+    if schema is QuestionBatch:
+        return _fake_questions(user)
+    if schema is Evaluation:
+        return _fake_evaluation(user)
     raise LLMOutputError(f"The fake model cannot produce {schema.__name__}.")
 
 
@@ -230,6 +324,8 @@ def chat[T: BaseModel](
     for attempt in (1, 2):
         try:
             if provider == "fake":
+                if not settings.dev_fake:
+                    raise LLMUnavailable("The fake model is only available in fake mode.")
                 reply = _fake(user, schema)
             elif provider == "ollama":
                 text = _ollama(settings, model, system, user, schema, creative)
