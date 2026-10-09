@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Status
+<h2>Models</h2>
+{% if model_options %}
+<ul>
+  {% for o in model_options %}
+  <li>{{ o.label }} <span class="muted">({% if o.is_local %}local, nothing leaves this computer{% else %}cloud, sent to Anthropic{% endif %})</span></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h2>Test a model</h2>
+<p>Sends a tiny prompt to the chosen model and shows how long it took.</p>
+{% if test_result %}<p class="notice" role="status">{{ test_result }}</p>{% endif %}
+{% if test_error %}<p class="error-box" role="alert">{{ test_error }}</p>{% endif %}
+<form method="post" action="/status/test" class="stack" data-busy>
+  {% include "_model_picker.html" %}
+  <button type="submit">Test model</button>
+</form>
+{% endblock %}
+{% block content %}
+<h1>Status</h1>
+<p>These checks also run from the command line with <code>uv run python -m app.health</code>.</p>
+<table>
+  <caption class="visually-hidden">Environment checks</caption>
+  <thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Detail</th></tr></thead>
+  <tbody>
+  {% for c in checks %}
+  <tr>
+    <th scope="row">{{ c.name }}{% if not c.required %} <span class="muted">(optional)</span>{% endif %}</th>
+    <td class="{{ {True: 'pass', False: 'fail', None: 'skip'}[c.ok] }}">{{ c.label }}</td>
+    <td>{{ c.detail }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Models</h2>
+{% if model_options %}
+<ul>
+  {% for o in model_options %}
+  <li>{{ o.label }} <span class="muted">({% if o.is_local %}local, nothing leaves this computer{% else %}cloud, sent to Anthropic{% endif %})</span></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h2>Test a model</h2>
+<p>Sends a tiny prompt to the chosen model and shows how long it took.</p>
+{% if test_result %}<p class="notice" role="status">{{ test_result }}</p>{% endif %}
+{% if test_error %}<p class="error-box" role="alert">{{ test_error }}</p>{% endif %}
+<form method="post" action="/status/test" class="stack" data-busy>
+  {% include "_model_picker.html" %}
+  <button type="submit">Test model</button>
+</form>
+{% endblock %}

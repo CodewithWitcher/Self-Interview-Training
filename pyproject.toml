@@ -1,0 +1,43 @@
+[project]
+name = "self-interview-training"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "jinja2",
+  "python-multipart",
+  "python-dotenv",
+  "httpx",
+  "anthropic",
+  "pypdf",
+  "numpy",
+  "fastembed",
+  # Added in M3 by task T26:
+  "faster-whisper",
+  "av<19",
+]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[tool.uv]
+package = false
+environments = [
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-m 'not models and not live'"
+markers = [
+  "models: needs the downloaded embedding or speech model",
+  "live: needs a real language model",
+]
+
+[tool.ruff]
+line-length = 100
+# Ruff also formats Python blocks inside Markdown. The documents keep their own layout.
+extend-exclude = ["*.md"]

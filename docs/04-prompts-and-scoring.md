@@ -111,7 +111,7 @@ Normalisation, in `plan.normalise_plan(plan, has_jd)`:
 
 Saving the plan, in one transaction:
 
-1. A plan topic that matches an existing topic by name, ignoring case, updates its weight, source and rationale. The existing kind is kept.
+1. A plan topic that matches an existing topic by name, ignoring case, updates its weight, source and rationale. The existing kind is kept. A topic whose source is `manual` keeps that source, so a later rebuild still keeps it (F3.5).
 2. Other plan topics are inserted.
 3. Existing topics that the plan does not contain are set to weight 0, unless their source is `manual` or their kind is `resume_probe`.
 4. If the profile has no "Resume deep-dive" topic, insert it: kind `resume_probe`, weight 3, source `resume`, rationale "Questions drawn from single lines of your resume".

@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+      - name: Machine
+        if: runner.os == 'macOS'
+        run: uname -m
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      # A test that runs past 60 seconds dumps the stack of every thread.
+      - run: uv run pytest -v -o faulthandler_timeout=60
+      - name: Cache model files
+        uses: actions/cache@v6
+        with:
+          path: data/models
+          key: models-${{ runner.os }}-${{ hashFiles('app/fetch_models.py', 'uv.lock') }}
+      - run: uv run python -m app.fetch_models --voice
+      - run: uv run pytest -m models

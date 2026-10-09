@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block profile_nav %}
+<li><a href="/profiles/{{ profile.id }}">{{ profile.name }}</a></li>
+<li><a href="/profiles/{{ profile.id }}/resume">Resume</a></li>
+<li><a href="/profiles/{{ profile.id }}/plan">Plan</a></li>
+<li><a href="/profiles/{{ profile.id }}/progress">Progress</a></li>
+{% endblock %}

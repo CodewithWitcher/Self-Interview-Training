@@ -1,0 +1,15 @@
+Senior Platform Engineer, Fabrikam Cloud
+
+We are looking for a senior engineer to build and run the services behind our payments platform.
+
+What you will do
+- Design Python services that handle millions of events a day.
+- Run our workloads on Kubernetes and own their deployment pipelines.
+- Write and tune SQL for PostgreSQL at scale.
+- Lead incident reviews and mentor other engineers.
+
+What you bring
+- Five or more years of backend development in Python.
+- Production experience with Kubernetes, Helm and container security.
+- Event streaming with Kafka or a similar system.
+- Clear written communication.

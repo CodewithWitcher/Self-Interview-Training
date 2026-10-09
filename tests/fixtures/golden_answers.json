@@ -1,0 +1,78 @@
+{
+  "questions": {
+    "A": {
+      "kind": "technical",
+      "text": "What is the difference between a list and a tuple in Python, and when would you choose a tuple?",
+      "key_points": [
+        "Lists are mutable and tuples are immutable.",
+        "A tuple can be a dictionary key or a set member when its items are hashable, a list cannot.",
+        "A tuple signals a fixed record of related values, a list is a collection that changes.",
+        "Tuples are slightly smaller and faster to create."
+      ]
+    },
+    "B": {
+      "kind": "behavioral",
+      "text": "Tell me about a time you disagreed with a teammate about a technical decision. What did you do?",
+      "key_points": [
+        "One specific situation with enough context.",
+        "What the disagreement was and why it mattered.",
+        "The candidate's own actions to resolve it.",
+        "The outcome, ideally measured.",
+        "What they learned."
+      ]
+    }
+  },
+  "answers": [
+    {
+      "id": "A1",
+      "question": "A",
+      "expected": {
+        "min": 70
+      },
+      "text": "A list is mutable, so you can append, remove or change items in place. A tuple is immutable: once it is created, its length and its references cannot change. Because of that a tuple is hashable when its items are hashable, so it can be a dictionary key or go in a set, which a list cannot. I choose a tuple for a fixed record such as a coordinate pair or a row returned from a function, and when I need a key made of several values. I choose a list when the collection grows or changes. Tuples are also a little smaller in memory."
+    },
+    {
+      "id": "A2",
+      "question": "A",
+      "expected": {
+        "between": [
+          "A3",
+          "A1"
+        ]
+      },
+      "text": "Lists can be changed and tuples cannot. I would use a tuple when the data should not change."
+    },
+    {
+      "id": "A3",
+      "question": "A",
+      "expected": {
+        "max": 45
+      },
+      "text": "They are basically the same, but tuples are mutable and lists are not, so tuples are slower. I would use a tuple when I need to add items often."
+    },
+    {
+      "id": "B1",
+      "question": "B",
+      "expected": {
+        "min": 70
+      },
+      "text": "On a payments service last year, a teammate wanted to add a Redis cache in front of our ledger queries, and I thought it risked showing stale balances. We had to decide before the sprint ended. I wrote a one-page comparison, measured the slow query, and found that a missing index was the real cause. I showed him the numbers and suggested we add the index first and revisit caching if the 95th percentile stayed above 200 milliseconds. He agreed. The index took it from 900 to 120 milliseconds and we never needed the cache. I learned to bring measurements to a disagreement instead of opinions."
+    },
+    {
+      "id": "B2",
+      "question": "B",
+      "expected": {
+        "max": 45
+      },
+      "text": "I usually try to listen to everyone and find a compromise. Communication is very important in a team, so we talk it through and move on."
+    },
+    {
+      "id": "B3",
+      "question": "B",
+      "expected": {
+        "max": 45
+      },
+      "text": "My biggest strength is that I work very hard and I always finish my tasks on time."
+    }
+  ]
+}

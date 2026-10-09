@@ -1,0 +1,10 @@
+<label for="model">Model</label>
+<select id="model" name="model">
+  {% for o in model_options %}
+  <option value="{{ o.value }}"{% if o.value == model_selected %} selected{% endif %}>{{ o.label }}</option>
+  {% endfor %}
+</select>
+{% if not has_local_model %}
+<p class="hint">No local model was found, so only the cloud model is offered. Local mode needs Ollama with a model pulled. See the <a href="/status">status page</a>.</p>
+{% endif %}
+<p class="hint">Local models keep everything on this computer. Cloud models send your answers and resume excerpts to Anthropic.</p>

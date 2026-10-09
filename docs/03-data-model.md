@@ -216,7 +216,7 @@ Each limit is a named constant. Input over a limit is rejected with a message. I
 - A vector is 384 little-endian 32-bit floats, 1,536 bytes, normalised to length 1.
 - Write with `numpy.asarray(vec, dtype="<f4").tobytes()`. Read with `numpy.frombuffer(blob, dtype="<f4")`.
 - Because vectors are normalised, cosine similarity is the dot product.
-- `embeddings.backfill(conn)` runs at startup and embeds every row whose embedding is NULL.
+- `embeddings.backfill(conn, settings)` runs at startup and embeds every row whose embedding is NULL.
 - To change the embedding model, add a migration that sets every embedding to NULL. The next startup embeds everything again.
 
 ## 7. Connections, transactions and time

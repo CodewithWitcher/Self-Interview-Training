@@ -123,8 +123,8 @@ dependencies = [
   "numpy",
   "fastembed",
   # Added in M3 by task T26:
-  # "faster-whisper",
-  # "av<19",
+  "faster-whisper",
+  "av<19",
 ]
 
 [dependency-groups]
@@ -148,7 +148,11 @@ markers = [
 
 [tool.ruff]
 line-length = 100
+# Ruff also formats Python blocks inside Markdown. The documents keep their own layout.
+extend-exclude = ["*.md"]
 ```
+
+Task T10 added the `extend-exclude` line. Without it, `ruff format --check .` fails on the Python examples in `docs/`.
 
 Versions that the full list, including the two M3 lines, resolved to on 2026-10-08: fastapi 0.143.0, starlette 1.7.0, uvicorn 0.54.0, jinja2 3.1.6, python-multipart 0.0.32, python-dotenv 1.2.4, httpx 0.28.1, anthropic 1.12.1, pydantic 2.14.0, pypdf 6.19.0, numpy 2.5.3, fastembed 0.9.0, onnxruntime 1.30.0, faster-whisper 1.2.1, ctranslate2 4.8.2, av 18.1.0, pytest 9.1.1, ruff 0.16.10. `uv.lock` is the source of truth once it exists. The file exactly as shown was also locked and installed, and its three test selections were run: `pytest`, `pytest -m models` and `pytest -m live` each pick only their own tests.
 
@@ -317,11 +321,16 @@ Append a row for every run. Never delete rows.
 | 2026-10-08 | Windows 11 | Every worked example in [prompts and scoring](04-prompts-and-scoring.md), sections 7 to 10, the chunking rule and the filler pattern | Pass |
 | 2026-10-08 | Windows 11 | A text PDF written with reportlab and read with pypdf 6.19.0. A blank PDF, a locked PDF, a broken PDF. | Pass. Blank gives empty text. Locked raises `FileNotDecryptedError`. Broken raises `PdfStreamError`. Both extend `pypdf.errors.PyPdfError`. |
 | 2026-10-08 | Windows 11 | anthropic 1.12.1: the parameters of `beta.messages.parse` used in the [architecture](02-architecture.md), section 7.3 | Pass by inspection of the installed SDK. No request was sent. |
+| 2026-10-09 | Linux container, not a supported system | Default tests (`pytest`), ruff check and format check, with the packages of `uv.lock` installed into a virtual environment, because `uv sync` refuses a platform outside the lock | Pass |
+| 2026-10-09 | Linux container | `uv run python -m app.fetch_models` | Fail. The container's network policy blocks huggingface.co. The `models` tests are left to CI. |
+| 2026-10-09 | Linux container, Chromium 141 through Playwright | The app in fake mode, driven by the keyboard and the mouse: create a profile, upload the PDF fixture, build the plan, add the job description and see a Gap, a session with a follow-up, a `#down` answer with Retry, end early with the confirmation, summary, progress, Test model. Skip link, visible focus, no request to any host but 127.0.0.1. | Pass. Stands in for steps 2 to 10, 13 and 14 until they run on Windows and a Mac. |
+| 2026-10-09 | Linux container | A request to Ollama or Claude | Not run. ollama.com and the Ollama registry are blocked, and no API key is present. |
+| 2026-10-09 | Linux container, headless Chromium through Playwright | The recorder with a fake microphone fed the speech fixture: Record shows, the state is announced, Stop uploads the clip, the route's error appears in the live region. The read aloud button appears when a local English voice exists. | Pass, up to transcription, which needs the speech model that this container cannot download |
 | open | Mac | Anything at all | Not run |
 | open | Both | A request to a local Ollama model | Not run. No local model is pulled on the reference machine. |
 | open | Both | A request to Claude | Not run |
 | open | Both | Browser recording, microphone permission, speech output | Not run |
-| open | Both | The app itself | Not built yet |
+| open | Both | The app itself on Windows and on a Mac | Built through T25. Not yet run on either system. |
 
 ## 10. Troubleshooting
 

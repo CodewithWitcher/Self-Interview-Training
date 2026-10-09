@@ -1,6 +1,6 @@
 # Task breakdown
 
-Status: draft 1, written 2026-10-08. 31 tasks in four milestones. No task has been started.
+Status: draft 1, written 2026-10-08. 31 tasks in four milestones. Updated 2026-10-09: every task is built. The unticked ones say on their line what they wait for.
 
 Specifications: [product requirements](01-product-requirements.md) (PR), [architecture](02-architecture.md) (AR), [data model](03-data-model.md) (DM), [prompts and scoring](04-prompts-and-scoring.md) (PS), [setup guide](05-setup-guide.md) (SG). A reference such as "PS 7.3" means section 7.3 of that document. "F5.6" means line 6 of feature F5 in the product requirements.
 
@@ -21,46 +21,46 @@ Tick a line in the commit that completes the task.
 
 M0, skeleton:
 
-- [ ] T01 Repository scaffold
-- [ ] T02 Settings
-- [ ] T03 Database
-- [ ] T04 Web shell and security
-- [ ] T05 Status page and health command
-- [ ] T06 CI on Windows and Mac
+- [x] T01 Repository scaffold
+- [x] T02 Settings
+- [x] T03 Database
+- [x] T04 Web shell and security
+- [x] T05 Status page and health command
+- [ ] T06 CI on Windows and Mac. Workflow written. Blocked: needs owner item 2, a push and two green jobs.
 
 M1, core loop:
 
-- [ ] T07 Profiles
-- [ ] T08 Embeddings
-- [ ] T09 Resume intake
-- [ ] T10 Model layer
-- [ ] T11 Prompts and schemas
-- [ ] T12 Scoring core
-- [ ] T13 Fake provider
-- [ ] T14 Prep plan
-- [ ] T15 Question generation
-- [ ] T16 Start a session
-- [ ] T17 Answer, score, follow up
-- [ ] T18 Finish, resume, end, summary
-- [ ] T19 Status page, complete
-- [ ] T20 Golden set
-- [ ] T21 M1 smoke and README
+- [x] T07 Profiles
+- [x] T08 Embeddings
+- [x] T09 Resume intake
+- [x] T10 Model layer
+- [x] T11 Prompts and schemas
+- [x] T12 Scoring core
+- [x] T13 Fake provider
+- [x] T14 Prep plan
+- [x] T15 Question generation
+- [x] T16 Start a session
+- [x] T17 Answer, score, follow up
+- [x] T18 Finish, resume, end, summary
+- [x] T19 Status page, complete
+- [ ] T20 Golden set. Fixture and live test written. Blocked: needs owner item 3 or 4 to run, see SG 9.3.
+- [ ] T21 M1 smoke and README. README done. Blocked: needs T20 and owner items 3 and 5.
 
 M2, retention and targeting:
 
-- [ ] T22 Job description mode
-- [ ] T23 Spaced repetition
-- [ ] T24 Readiness and progress
-- [ ] T25 v1 hardening
+- [x] T22 Job description mode
+- [x] T23 Spaced repetition
+- [x] T24 Readiness and progress
+- [ ] T25 v1 hardening. Tests, README and a browser pass done. Blocked: smoke steps 13 and 14 need Windows and a Mac (owner item 5).
 
 M3, voice:
 
-- [ ] T26 Voice dependencies and model
-- [ ] T27 Transcription
-- [ ] T28 Recorder in the browser
-- [ ] T29 Delivery metrics on the page
-- [ ] T30 Read aloud
-- [ ] T31 M3 smoke
+- [x] T26 Voice dependencies and model
+- [x] T27 Transcription
+- [ ] T28 Recorder in the browser. Built, and checked in headless Chromium with a fake microphone. Blocked: the by-hand check needs Chrome, Edge and Safari on Windows and a Mac.
+- [x] T29 Delivery metrics on the page
+- [ ] T30 Read aloud. Built. Blocked: the by-hand check needs each system and browser.
+- [ ] T31 M3 smoke. Blocked: needs owner items 5 and 6 and the speech model on a real machine.
 
 ## 3. Needs the owner
 
@@ -296,7 +296,7 @@ An agent must not do these on its own.
 - **Depends on:** T26
 - **Spec:** F14.2 to F14.4, PS 9, DM 5, DM 10, AR 9 rule 13
 - **Files:** `app/voice.py`, `app/routes/voice.py`, `tests/fixtures/speech_sample.webm`, `tests/test_voice.py`
-- **Build:** `transcribe`, `delivery_metrics`, and the audio route. The route answers with JSON, either a `text` field or an `error` field, and stores the metrics on the current turn. Fixture recipe, used on Windows on 2026-10-08: speak the sentence of PS 9.2 with the system speech engine into a WAV file, then use FFmpeg to put 1.5 seconds of silence in front and encode it as Opus in WebM. On a Mac, `say -o` produces the speech. FFmpeg is needed for this one step only.
+- **Build:** `transcribe`, `delivery_metrics`, and the audio route. The route answers with JSON, either a `text` field or an `error` field, and stores the metrics on the current turn. Fixture recipe, used on Windows on 2026-10-08: speak the sentence of PS 9.2 with the system speech engine into a WAV file, then use FFmpeg to put 1.5 seconds of silence in front and encode it as Opus in WebM. On a Mac, `say -o` produces the speech. FFmpeg is needed for this one step only. The committed fixture was made on 2026-10-09 in the Linux development container with FFmpeg's built-in `flite` filter (voice `slt`, 16 kHz), slowed with `atempo=0.9`, 1.5 seconds of `anullsrc` silence in front, encoded with libopus at 64 kbit/s. flite says "tuple" so that Whisper hears "top hole", so its input spells the word "toople". The clip lasts about 10.8 seconds. A first version resampled to 8 kHz was misheard by Whisper on the Mac CI runner.
 - **Check:** Default tests with a stub recogniser: the two guards drop a late segment and a punctuation-only segment. No segment gives the "No speech was detected" error. A decoding error gives the "could not be read" error. A 26 MB body is rejected. The measured example reproduces: 27 words, 147 words per minute, 3 fillers. `models` tests: the fixture's transcript contains "tuple is immutable" and "dictionary key", with a first word delay between 0.8 and 1.8 seconds. Two seconds of silence built in the test give the no speech error. No new file appears under the data folder after a request.
 
 ### T28 Recorder in the browser

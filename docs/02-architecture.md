@@ -177,7 +177,7 @@ Route handlers validate input and call these modules. SQL lives in these modules
 | `fetch_models.py` | Downloads model files into `data/models/` | `main()` |
 | `llm.py` | The model layer, section 7 | `chat(...)`, `list_models(settings)`, `LLMError` and subclasses |
 | `prompts.py` | Reply schemas and prompt builders | `Plan`, `QuestionBatch`, `Evaluation`, `plan_prompt(...)`, `questions_prompt(...)`, `evaluation_prompt(...)` |
-| `embeddings.py` | Embedding and similarity | `embed(texts)`, `to_blob(vec)`, `from_blob(blob)`, `top_k(query, vectors, k)`, `backfill(conn)` |
+| `embeddings.py` | Embedding and similarity | `embed(texts, settings)`, `to_blob(vec)`, `from_blob(blob)`, `top_k(query, vectors, k)`, `backfill(conn, settings)`. The settings argument chooses the fake embedder and the model folder. |
 | `resume.py` | Text extraction, chunking, saving | `extract_text(filename, data)`, `chunk_text(text)`, `save_resume(conn, profile_id, text, name)` |
 | `plan.py` | Building and updating the plan | `build_plan(conn, profile_id, provider, model)`, `normalise_plan(plan, has_jd)` |
 | `questions.py` | Generating and de-duplicating questions | `generate(conn, topic, n, difficulty, provider, model, rng)`, `drop_duplicates(candidates, existing)` |
@@ -276,13 +276,14 @@ Next links to the session route above. The profile home links to it too while a 
 
 ```python
 def chat(provider: str, model: str, system: str, user: str,
-         schema: type[T], *, creative: bool = False) -> T: ...
+         schema: type[T], *, settings: Settings, creative: bool = False,
+         check: Callable[[T], T] | None = None) -> T: ...
 
 def list_models(settings: Settings) -> list[ModelOption]: ...
 # ModelOption: provider, model, label, is_local
 ```
 
-`chat` returns a validated instance of `schema` or raises a subclass of `LLMError`. `creative=True` is used only for question generation. Callers never see provider details.
+`chat` returns a validated instance of `schema` or raises a subclass of `LLMError`. `creative=True` is used only for question generation. Callers never see provider details. `check` applies a prompt's normalisation rules and raises `InvalidReply` when the reply must be rejected. A rejected reply is retried once, like a reply that fails validation.
 
 ### 7.2 Ollama
 

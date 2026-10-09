@@ -1,0 +1,65 @@
+{% extends "profile_base.html" %}
+{% block title %}{{ profile.name }}{% endblock %}
+{% block content %}
+<h1>{{ profile.name }}</h1>
+
+<p>{% if readiness is not none %}<strong>Readiness: {{ readiness }}</strong> <span class="muted">out of 100</span>. {% endif %}<strong>Due today: {{ due }}</strong> <span class="muted">questions to review</span>. <a href="/profiles/{{ profile.id }}/progress">See progress</a></p>
+
+{% if active %}
+<h2>Session in progress</h2>
+<p><a class="button" href="/profiles/{{ profile.id }}/sessions/{{ active.id }}">Continue session, question {{ active_position[0] }} of {{ active_position[1] }}</a></p>
+{% else %}
+<h2>Start a session</h2>
+{% if start_error %}<p class="error-box" role="alert" id="start-error">{{ start_error }}</p>{% endif %}
+{% if not topics and not due %}
+<p class="empty">There is nothing to practise yet. {% if not profile.resume_text %}<a href="/profiles/{{ profile.id }}/resume">Add your resume</a>, then build{% else %}<a href="/profiles/{{ profile.id }}/plan">Build</a>{% endif %} your plan.</p>
+{% else %}
+<form method="post" action="/profiles/{{ profile.id }}/sessions" class="stack" data-busy>
+  <fieldset>
+    <legend>Topics</legend>
+    {% for t in topics %}
+    <label><input type="checkbox" name="topics" value="{{ t.id }}"{% if form_topics is none or t.id in form_topics %} checked{% endif %}> {{ t.name }}</label><br>
+    {% endfor %}
+  </fieldset>
+  <fieldset>
+    <legend>Number of questions</legend>
+    {% for c in (3, 5, 10) %}
+    <label><input type="radio" name="count" value="{{ c }}"{% if c == form_count %} checked{% endif %}> {{ c }}</label>
+    {% endfor %}
+  </fieldset>
+  <fieldset>
+    <legend>Difficulty</legend>
+    {% for d in ("easy", "medium", "hard") %}
+    <label><input type="radio" name="difficulty" value="{{ d }}"{% if d == form_difficulty %} checked{% endif %}> {{ d | capitalize }}</label>
+    {% endfor %}
+  </fieldset>
+  <fieldset>
+    <legend>Reviews</legend>
+    <p class="hint">Due reviews from the chosen topics fill up to half of the session.</p>
+    <label><input type="checkbox" name="review_only" value="1"{% if form_review_only %} checked{% endif %}> Review only: fill the whole session with due reviews from all topics</label>
+  </fieldset>
+  {% include "_model_picker.html" %}
+  <p class="hint">New questions are written by the model when the stored ones run out. This can take a minute on a local model.</p>
+  <button type="submit">Start session</button>
+</form>
+{% endif %}
+{% endif %}
+
+<h2>Get ready</h2>
+<ul>
+  <li><a href="/profiles/{{ profile.id }}/resume">Resume</a>:
+    {% if profile.resume_text %}saved{% if profile.resume_name %} from {{ profile.resume_name }}{% endif %}{% else %}not added yet{% endif %}</li>
+  <li><a href="/profiles/{{ profile.id }}/plan">Plan</a>{% if profile.plan_summary %}: {{ profile.plan_summary }}{% endif %}</li>
+</ul>
+
+<h2>Delete this profile</h2>
+<form method="post" action="/profiles/{{ profile.id }}/delete" class="stack"
+      data-confirm="Delete this profile and everything in it? This cannot be undone.">
+  <p class="hint">This removes the resume, plan, questions, sessions and answers of this profile.</p>
+  <label for="confirm">Type the profile name, {{ profile.name }}, to confirm</label>
+  <input id="confirm" name="confirm" type="text" autocomplete="off" value="{{ delete_confirm }}"
+         {% if delete_error %}aria-invalid="true" aria-describedby="confirm-error"{% endif %}>
+  {% if delete_error %}<p class="field-error" id="confirm-error">{{ delete_error }}</p>{% endif %}
+  <button type="submit" class="danger">Delete profile</button>
+</form>
+{% endblock %}
