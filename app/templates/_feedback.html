@@ -1,0 +1,28 @@
+{# One scored turn: score, dimensions, strengths, gaps, feedback. Expects t and level0 key points. #}
+{% if t.skipped %}
+<p><span class="score">Score 0</span> <span class="muted">(skipped)</span></p>
+{% elif t.score is not none %}
+{% set e = t.evaluation %}
+<p><span class="score">Score {{ t.score }}</span> <span class="muted">out of 100</span></p>
+<ul class="dims" aria-label="Rubric dimensions, each 0 to 4">
+  <li>Correctness: {{ t.s_correctness }} of 4</li>
+  <li>Depth: {{ t.s_depth }} of 4</li>
+  <li>Clarity: {{ t.s_clarity }} of 4</li>
+  <li>Structure: {{ t.s_structure }} of 4</li>
+</ul>
+{% if e %}
+{% if e.strengths %}<h3>Strengths</h3><ul>{% for s in e.strengths %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+{% if e.gaps %}<h3>Gaps</h3><ul>{% for g in e.gaps %}<li>{{ g }}</li>{% endfor %}</ul>{% endif %}
+<h3>Feedback</h3>
+<p>{{ e.feedback }}</p>
+{% if t.level == 0 and key_points %}
+<h3>Key points</h3>
+<ul>
+  {% for kp in key_points %}
+  <li>{% if loop.index in e.key_points_hit %}Covered{% else %}Missed{% endif %}: {{ kp }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<p class="hint">Scored by {{ t.eval_model }}</p>
+{% endif %}
+{% endif %}

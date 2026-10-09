@@ -43,3 +43,47 @@ def topic_row(conn, pid, name):
     return conn.execute(
         "SELECT * FROM topics WHERE profile_id = ? AND name = ?", (pid, name)
     ).fetchone()
+
+
+def start_session(client, conn, pid, topics=("Python",), count=3, difficulty="easy"):
+    """Start a session on the named topics. Returns the session id."""
+    ids = [str(topic_row(conn, pid, name)["id"]) for name in topics]
+    r = client.post(
+        f"/profiles/{pid}/sessions",
+        data={"topics": ids, "count": str(count), "difficulty": difficulty, "model": "fake:fake"},
+        follow_redirects=False,
+    )
+    assert r.status_code == 303, r.text
+    return int(r.headers["location"].rsplit("/", 1)[1])
+
+
+def current(conn, sid):
+    """(attempt id, current turn row) of the session's current attempt."""
+    attempt = conn.execute(
+        "SELECT id FROM attempts WHERE session_id = ? AND status != 'done' ORDER BY ord LIMIT 1",
+        (sid,),
+    ).fetchone()
+    if attempt is None:
+        return None, None
+    turn = conn.execute(
+        "SELECT * FROM turns WHERE attempt_id = ? ORDER BY level DESC LIMIT 1", (attempt[0],)
+    ).fetchone()
+    return attempt[0], turn
+
+
+def answer(client, conn, pid, sid, text, follow=False):
+    aid, turn = current(conn, sid)
+    return client.post(
+        f"/profiles/{pid}/sessions/{sid}/attempts/{aid}/answer",
+        data={"text": text, "turn_id": str(turn["id"])},
+        follow_redirects=follow,
+    )
+
+
+def skip(client, conn, pid, sid):
+    aid, turn = current(conn, sid)
+    return client.post(
+        f"/profiles/{pid}/sessions/{sid}/attempts/{aid}/skip",
+        data={"turn_id": str(turn["id"])},
+        follow_redirects=False,
+    )

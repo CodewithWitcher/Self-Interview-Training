@@ -4,14 +4,67 @@
 {% include "_badge.html" %}
 {% for m in messages %}<p class="notice" role="status">{{ m }}</p>{% endfor %}
 <h1>Question {{ attempt.ord }} of {{ total }}</h1>
-<p class="muted">{{ question.topic_name }}, {{ question.difficulty }}{% if attempt.is_review %}, review{% endif %}</p>
+<p class="muted">Topic: {{ question.topic_name }}. Difficulty: {{ question.difficulty }}.{% if attempt.is_review %} Review question.{% endif %}</p>
+
 {% if question.context %}
 <h2>From your resume</h2>
 <p class="excerpt">{{ question.context }}</p>
 {% endif %}
-<ol class="thread">
+
+<ol class="thread" aria-label="Questions and answers">
 {% for t in turns %}
-  <li class="turn"><p class="prompt">{{ t.prompt }}</p></li>
+  <li class="turn" id="turn-{{ t.level }}">
+    <p class="prompt">{% if t.level > 0 %}Follow-up {{ t.level }}: {% endif %}{{ t.prompt }}</p>
+    {% if t.answer_text is not none and not t.skipped %}
+    <h3>Your answer</h3>
+    <p class="answer">{{ t.answer_text }}</p>
+    {% endif %}
+    {% include "_feedback.html" %}
+  </li>
 {% endfor %}
 </ol>
+
+{% if state == "answer" %}
+<form method="post" action="/profiles/{{ profile.id }}/sessions/{{ session.id }}/attempts/{{ attempt.id }}/answer" class="stack" data-busy id="answer-form">
+  <input type="hidden" name="turn_id" value="{{ latest.id }}">
+  <label for="answer">Your answer{% if latest.level > 0 %} to the follow-up{% endif %}</label>
+  <textarea id="answer" name="text" rows="10" maxlength="{{ answer_max }}" data-counter="answer-count"
+            {% if answer_error %}aria-invalid="true" aria-describedby="answer-error"{% endif %}>{{ draft }}</textarea>
+  <p class="counter" id="answer-count" aria-live="polite">Up to {{ "{:,}".format(answer_max) }} characters</p>
+  {% if answer_error %}<p class="field-error" id="answer-error">{{ answer_error }}</p>{% endif %}
+  <button type="submit">Submit answer</button>
+</form>
+<form method="post" action="/profiles/{{ profile.id }}/sessions/{{ session.id }}/attempts/{{ attempt.id }}/skip">
+  <input type="hidden" name="turn_id" value="{{ latest.id }}">
+  <p><button type="submit" class="secondary">Skip {% if latest.level > 0 %}this follow-up{% else %}this question{% endif %}</button></p>
+</form>
+{% elif state == "retry" %}
+<div class="error-box" role="alert">
+  <p>{{ error_title or "Your answer is saved but has not been scored yet." }}</p>
+  {% if error_detail %}<p>{{ error_detail }}</p>{% endif %}
+  <p>Your answer is saved. Retry, or change the model and retry.</p>
+</div>
+<form method="post" action="/profiles/{{ profile.id }}/sessions/{{ session.id }}/attempts/{{ attempt.id }}/evaluate" data-busy>
+  <p><button type="submit">Retry scoring</button></p>
+</form>
+{% else %}
+<h2>Reference answer</h2>
+<p class="reference">{{ question.reference_answer }}</p>
+<p><span class="score">Question score {{ attempt.score }}</span></p>
+<p><a class="button" href="/profiles/{{ profile.id }}/sessions/{{ session.id }}">{% if session.status == "completed" %}See the summary{% else %}Next question{% endif %}</a></p>
+{% endif %}
+
+{% if session.status == "active" %}
+<h2>Session</h2>
+<form method="post" action="/profiles/{{ profile.id }}/sessions/{{ session.id }}/model" class="stack">
+  <input type="hidden" name="back" value="{{ attempt.id }}">
+  {% include "_model_picker.html" %}
+  <button type="submit" class="secondary">Change model</button>
+</form>
+<form method="post" action="/profiles/{{ profile.id }}/sessions/{{ session.id }}/end"
+      data-confirm="End the session now? Answers that are not scored yet are discarded.">
+  <p class="hint">Ending now keeps every scored answer and discards anything not scored yet.</p>
+  <p><button type="submit" class="danger">End session</button></p>
+</form>
+{% endif %}
 {% endblock %}
