@@ -55,3 +55,35 @@ def test_newer_database_fails(settings):
     with closing(sqlite3.connect(settings.db_path)) as conn:
         conn.execute("PRAGMA user_version = 99")
     assert health.check_database(settings).ok is False
+
+
+def test_model_with_fake_provider_shows_time(client):
+    r = client.post("/status/test", data={"model": "fake:fake"})
+    assert r.status_code == 200
+    assert "fake:fake answered in" in r.text
+    assert "seconds" in r.text
+
+
+def test_model_with_unreachable_ollama_shows_message(settings, monkeypatch):
+    import httpx
+
+    from app import llm
+    from tests.conftest import make_client
+
+    def refuse(request):
+        raise httpx.ConnectError("refused")
+
+    monkeypatch.setattr(llm, "http_transport", httpx.MockTransport(refuse))
+    real = replace(settings, dev_fake=False)
+    with make_client(real) as c:
+        r = c.post("/status/test", data={"model": "ollama:llama3.1:8b"})
+        assert r.status_code == 200
+        assert "could not be reached" in r.text
+        assert "Traceback" not in r.text
+        page = c.get("/status").text
+        assert "Cloud: claude-opus-5-5" in page
+
+
+def test_status_page_lists_models_with_labels(client):
+    text = client.get("/status").text
+    assert "Fake model" in text and "local, nothing leaves this computer" in text
