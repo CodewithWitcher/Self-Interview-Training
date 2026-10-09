@@ -21,7 +21,7 @@ Tick a line in the commit that completes the task.
 
 M0, skeleton:
 
-- [ ] T01 Repository scaffold
+- [x] T01 Repository scaffold
 - [ ] T02 Settings
 - [ ] T03 Database
 - [ ] T04 Web shell and security
