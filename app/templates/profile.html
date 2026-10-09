@@ -3,6 +3,44 @@
 {% block content %}
 <h1>{{ profile.name }}</h1>
 
+{% block status %}{% endblock %}
+
+{% if active %}
+<h2>Session in progress</h2>
+<p><a class="button" href="/profiles/{{ profile.id }}/sessions/{{ active.id }}">Continue session, question {{ active_position[0] }} of {{ active_position[1] }}</a></p>
+{% else %}
+<h2>Start a session</h2>
+{% if start_error %}<p class="error-box" role="alert" id="start-error">{{ start_error }}</p>{% endif %}
+{% if not topics %}
+<p class="empty">There is nothing to practise yet. {% if not profile.resume_text %}<a href="/profiles/{{ profile.id }}/resume">Add your resume</a>, then build{% else %}<a href="/profiles/{{ profile.id }}/plan">Build</a>{% endif %} your plan.</p>
+{% else %}
+<form method="post" action="/profiles/{{ profile.id }}/sessions" class="stack" data-busy>
+  <fieldset>
+    <legend>Topics</legend>
+    {% for t in topics %}
+    <label><input type="checkbox" name="topics" value="{{ t.id }}"{% if form_topics is none or t.id in form_topics %} checked{% endif %}> {{ t.name }}</label><br>
+    {% endfor %}
+  </fieldset>
+  <fieldset>
+    <legend>Number of questions</legend>
+    {% for c in (3, 5, 10) %}
+    <label><input type="radio" name="count" value="{{ c }}"{% if c == form_count %} checked{% endif %}> {{ c }}</label>
+    {% endfor %}
+  </fieldset>
+  <fieldset>
+    <legend>Difficulty</legend>
+    {% for d in ("easy", "medium", "hard") %}
+    <label><input type="radio" name="difficulty" value="{{ d }}"{% if d == form_difficulty %} checked{% endif %}> {{ d | capitalize }}</label>
+    {% endfor %}
+  </fieldset>
+  {% block review_option %}{% endblock %}
+  {% include "_model_picker.html" %}
+  <p class="hint">New questions are written by the model when the stored ones run out. This can take a minute on a local model.</p>
+  <button type="submit">Start session</button>
+</form>
+{% endif %}
+{% endif %}
+
 <h2>Get ready</h2>
 <ul>
   <li><a href="/profiles/{{ profile.id }}/resume">Resume</a>:

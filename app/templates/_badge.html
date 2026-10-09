@@ -1,0 +1,5 @@
+{% if session.provider == "anthropic" %}
+<p class="badge cloud" role="note">Cloud: your answers and resume excerpts are sent to Anthropic</p>
+{% else %}
+<p class="badge local" role="note">Local: nothing leaves this computer</p>
+{% endif %}

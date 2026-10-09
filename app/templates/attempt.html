@@ -1,0 +1,17 @@
+{% extends "profile_base.html" %}
+{% block title %}Question {{ attempt.ord }} of {{ total }} - {{ profile.name }}{% endblock %}
+{% block content %}
+{% include "_badge.html" %}
+{% for m in messages %}<p class="notice" role="status">{{ m }}</p>{% endfor %}
+<h1>Question {{ attempt.ord }} of {{ total }}</h1>
+<p class="muted">{{ question.topic_name }}, {{ question.difficulty }}{% if attempt.is_review %}, review{% endif %}</p>
+{% if question.context %}
+<h2>From your resume</h2>
+<p class="excerpt">{{ question.context }}</p>
+{% endif %}
+<ol class="thread">
+{% for t in turns %}
+  <li class="turn"><p class="prompt">{{ t.prompt }}</p></li>
+{% endfor %}
+</ol>
+{% endblock %}

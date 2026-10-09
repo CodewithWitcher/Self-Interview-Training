@@ -16,7 +16,7 @@ from starlette.responses import PlainTextResponse
 
 from app import db, embeddings
 from app.config import Settings, load_settings
-from app.routes import plan, profiles, render, resume, status
+from app.routes import plan, profiles, render, resume, sessions, status
 
 log = logging.getLogger("app")
 
@@ -56,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.today = date.today
     app.state.rng = random.Random()
+    app.state.flash = {}
 
     allowed_origins = {f"http://{host}:{settings.port}" for host in ALLOWED_HOSTS}
 
@@ -111,5 +112,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(profiles.router)
     app.include_router(resume.router)
     app.include_router(plan.router)
+    app.include_router(sessions.router)
     app.include_router(status.router)
     return app

@@ -4,6 +4,7 @@ import sqlite3
 
 from fastapi import APIRouter, Form, Request
 
+from app import sessions
 from app.db import Conn, utc_now
 from app.routes import load_profile, redirect, render
 
@@ -41,7 +42,16 @@ def create_profile(request: Request, conn: Conn, name: str = Form("")):
 
 
 def profile_page(request: Request, conn: sqlite3.Connection, profile, status_code=200, **extra):
-    context = {"profile": profile, "delete_error": None}
+    from app.routes.sessions import start_form_context
+
+    active = sessions.active_session(conn, profile["id"])
+    context = {
+        "profile": profile,
+        "delete_error": None,
+        "active": active,
+        "active_position": sessions.progress(conn, active["id"]) if active else None,
+    }
+    context.update(start_form_context(conn, profile, request.app.state.settings))
     context.update(extra)
     return render(request, "profile.html", status_code, **context)
 
