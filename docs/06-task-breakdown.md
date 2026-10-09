@@ -25,7 +25,7 @@ M0, skeleton:
 - [x] T02 Settings
 - [x] T03 Database
 - [x] T04 Web shell and security
-- [ ] T05 Status page and health command
+- [x] T05 Status page and health command
 - [ ] T06 CI on Windows and Mac
 
 M1, core loop:

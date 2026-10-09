@@ -15,7 +15,7 @@ from starlette.responses import PlainTextResponse
 
 from app import db
 from app.config import Settings, load_settings
-from app.routes import profiles, render
+from app.routes import profiles, render, status
 
 log = logging.getLogger("app")
 
@@ -96,4 +96,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.include_router(profiles.router)
+    app.include_router(status.router)
     return app

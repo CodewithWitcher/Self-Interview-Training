@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Status{% endblock %}
+{% block content %}
+<h1>Status</h1>
+<p>These checks also run from the command line with <code>uv run python -m app.health</code>.</p>
+<table>
+  <caption class="visually-hidden">Environment checks</caption>
+  <thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Detail</th></tr></thead>
+  <tbody>
+  {% for c in checks %}
+  <tr>
+    <th scope="row">{{ c.name }}{% if not c.required %} <span class="muted">(optional)</span>{% endif %}</th>
+    <td class="{{ {True: 'pass', False: 'fail', None: 'skip'}[c.ok] }}">{{ c.label }}</td>
+    <td>{{ c.detail }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
