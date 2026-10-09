@@ -40,3 +40,28 @@ def load_profile(conn: sqlite3.Connection, pid: int) -> sqlite3.Row:
     if row is None:
         raise HTTPException(status_code=404)
     return row
+
+
+def model_picker(conn: sqlite3.Connection, profile_id: int, settings) -> dict:
+    """Template context for _model_picker.html."""
+    from app import llm, sessions
+
+    options = llm.list_models(settings)
+    return {
+        "model_options": options,
+        "model_selected": sessions.preselected_model(conn, profile_id, settings, options),
+        "has_local_model": any(o.is_local for o in options),
+    }
+
+
+def parse_model(value: str, settings) -> tuple[str, str] | None:
+    """Split a picker value "provider:model". None when it is not usable."""
+    provider, _, model = value.partition(":")
+    model = model.strip()
+    if not model or len(model) > 200:
+        return None
+    if settings.dev_fake:
+        return (provider, model) if provider == "fake" else None
+    if provider not in ("ollama", "anthropic"):
+        return None
+    return provider, model

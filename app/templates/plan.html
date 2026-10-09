@@ -1,0 +1,64 @@
+{% extends "profile_base.html" %}
+{% block title %}Plan - {{ profile.name }}{% endblock %}
+{% block content %}
+<h1>Plan</h1>
+{% if profile.plan_summary %}<p>{{ profile.plan_summary }}</p>{% endif %}
+
+{% block jd %}{% endblock %}
+
+<h2>{% if topics %}Rebuild the plan{% else %}Build the plan{% endif %}</h2>
+{% if build_error %}<p class="error-box" role="alert">{{ build_error }}</p>{% endif %}
+{% if not profile.resume_text %}
+<p class="empty">The plan is built from your resume. <a href="/profiles/{{ profile.id }}/resume">Add your resume</a> first.</p>
+{% else %}
+<form method="post" action="/profiles/{{ profile.id }}/plan/build" class="stack" data-busy>
+  {% include "_model_picker.html" %}
+  <p class="hint">Rebuilding keeps your history and the topics you added. Topics the new plan leaves out are switched off.</p>
+  <button type="submit">{% if topics %}Rebuild plan{% else %}Build plan{% endif %}</button>
+</form>
+{% endif %}
+
+<h2>Topics</h2>
+{% if topics %}
+<table>
+  <caption class="visually-hidden">Topics in the plan</caption>
+  <thead><tr><th scope="col">Topic</th><th scope="col">Source</th><th scope="col">Why</th><th scope="col">Weight</th></tr></thead>
+  <tbody>
+  {% for t in topics %}
+  <tr id="topic-{{ t.id }}">
+    <th scope="row">{{ t.name }}<br><span class="muted">{{ t.kind | replace("_", " ") }}</span>
+      {% if t.weight == 0 %}<br><span class="muted">(off)</span>{% endif %}</th>
+    <td>{% if t.source == "jd" %}<strong>Gap</strong>: {% endif %}{{ source_labels[t.source] }}</td>
+    <td>{{ t.rationale }}</td>
+    <td>
+      <form method="post" action="/profiles/{{ profile.id }}/topics/{{ t.id }}" class="row">
+        <label class="visually-hidden" for="weight-{{ t.id }}">Weight of {{ t.name }}</label>
+        <select id="weight-{{ t.id }}" name="weight">
+          {% for w in range(6) %}<option value="{{ w }}"{% if w == t.weight %} selected{% endif %}>{{ w }}{% if w == 0 %} (off){% endif %}</option>{% endfor %}
+        </select>
+        <button type="submit" class="secondary">Save<span class="visually-hidden"> weight of {{ t.name }}</span></button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="hint">Weight 5 is central to the role, 1 is minor, 0 switches the topic off without deleting its history.</p>
+{% else %}
+<p class="empty">No topics yet. Build the plan, or add a topic yourself.</p>
+{% endif %}
+
+<h2>Add a topic</h2>
+<form method="post" action="/profiles/{{ profile.id }}/topics" class="stack">
+  {% if topic_error %}<p class="field-error" id="topic-error">{{ topic_error }}</p>{% endif %}
+  <label for="topic-name">Topic name, 1 to 60 characters</label>
+  <input id="topic-name" name="name" type="text" maxlength="60" required value="{{ topic_name }}"
+         {% if topic_error %}aria-invalid="true" aria-describedby="topic-error"{% endif %}>
+  <fieldset>
+    <legend>Kind</legend>
+    <label><input type="radio" name="kind" value="technical"{% if topic_kind != "behavioral" %} checked{% endif %}> Technical</label>
+    <label><input type="radio" name="kind" value="behavioral"{% if topic_kind == "behavioral" %} checked{% endif %}> Behavioral</label>
+  </fieldset>
+  <button type="submit">Add topic</button>
+</form>
+{% endblock %}
