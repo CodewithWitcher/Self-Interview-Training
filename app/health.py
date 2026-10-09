@@ -98,6 +98,22 @@ def check_embedding_model(settings: Settings) -> Check:
     return Check(name, False, False, "Not downloaded. Run: uv run python -m app.fetch_models")
 
 
+def check_speech_model(settings: Settings) -> Check:
+    name = "Speech model"
+    if settings.dev_fake:
+        return Check(name, False, None, "Skipped in fake mode")
+    from app.voice import model_present
+
+    if model_present(settings):
+        return Check(name, False, True, f"{settings.whisper_model} is downloaded")
+    return Check(
+        name,
+        False,
+        False,
+        "Not downloaded. Needed only for spoken answers. Run: uv run python -m app.fetch_models --voice",
+    )
+
+
 def check_ollama(settings: Settings) -> Check:
     name = "Ollama"
     if settings.dev_fake:
@@ -139,6 +155,7 @@ def run_checks(settings: Settings) -> list[Check]:
         check_database(settings),
         check_anthropic_import(),
         check_embedding_model(settings),
+        check_speech_model(settings),
         check_ollama(settings),
         check_claude_key(settings),
     ]

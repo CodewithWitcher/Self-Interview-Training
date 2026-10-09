@@ -53,14 +53,14 @@ def seed(c):
     return pid, tid, qid, sid, aid
 
 
-def test_new_database_reaches_version_1_with_seven_tables(conn):
-    assert conn.execute("PRAGMA user_version").fetchone()[0] == 1
+def test_new_database_reaches_latest_version_with_seven_tables(conn):
+    assert conn.execute("PRAGMA user_version").fetchone()[0] == db.latest_version() == 2
     assert tables(conn) == TABLES
 
 
 def test_second_migrate_changes_nothing(conn):
     before = conn.execute("SELECT sql FROM sqlite_master ORDER BY name").fetchall()
-    assert db.migrate(conn) == 1
+    assert db.migrate(conn) == 2
     after = conn.execute("SELECT sql FROM sqlite_master ORDER BY name").fetchall()
     assert [tuple(r) for r in before] == [tuple(r) for r in after]
 
@@ -163,3 +163,21 @@ def test_temporary_folder_can_be_deleted(tmp_path):
 
 def test_utc_now_format():
     assert re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", db.utc_now())
+
+
+def test_migration_2_from_version_1_with_data(tmp_path, monkeypatch):
+    only_first = tmp_path / "m"
+    only_first.mkdir()
+    (only_first / "001_init.sql").write_text(
+        (db.MIGRATIONS_DIR / "001_init.sql").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    with closing(db.connect(tmp_path / "v1.db")) as c:
+        monkeypatch.setattr(db, "MIGRATIONS_DIR", only_first)
+        assert db.migrate(c) == 1
+        *_, aid = seed(c)
+        monkeypatch.undo()
+        assert db.migrate(c) == 2
+        row = c.execute("SELECT * FROM turns WHERE attempt_id = ?", (aid,)).fetchone()
+        assert row["prompt"] == "Q?" and row["input_mode"] == "text" and row["wpm"] is None
+        with pytest.raises(sqlite3.IntegrityError):
+            c.execute("UPDATE turns SET input_mode = 'video'")

@@ -28,5 +28,5 @@ jobs:
         with:
           path: data/models
           key: models-${{ runner.os }}-${{ hashFiles('app/fetch_models.py', 'uv.lock') }}
-      - run: uv run python -m app.fetch_models
+      - run: uv run python -m app.fetch_models --voice
       - run: uv run pytest -m models

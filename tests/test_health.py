@@ -12,9 +12,18 @@ def test_status_page_lists_every_check(client, settings):
 
 def test_fake_mode_skips_model_checks(settings):
     checks = {c.name: c for c in health.run_checks(settings)}
-    for name in ("Embedding model", "Ollama", "Claude key"):
+    for name in ("Embedding model", "Speech model", "Ollama", "Claude key"):
         assert checks[name].ok is None
-    assert [c.required for c in checks.values()] == [True, True, True, True, False, False, False]
+    assert [c.required for c in checks.values()] == [
+        True,
+        True,
+        True,
+        True,
+        False,
+        False,
+        False,
+        False,
+    ]
 
 
 def test_command_exits_0_in_healthy_fake_setup(settings, capsys):
@@ -87,3 +96,8 @@ def test_model_with_unreachable_ollama_shows_message(settings, monkeypatch):
 def test_status_page_lists_models_with_labels(client):
     text = client.get("/status").text
     assert "Fake model" in text and "local, nothing leaves this computer" in text
+
+
+def test_speech_model_check_names_fetch_command(settings):
+    check = health.check_speech_model(replace(settings, dev_fake=False))
+    assert check.ok is False and "--voice" in check.detail and not check.required

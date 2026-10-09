@@ -55,7 +55,7 @@ M2, retention and targeting:
 
 M3, voice:
 
-- [ ] T26 Voice dependencies and model
+- [x] T26 Voice dependencies and model
 - [ ] T27 Transcription
 - [ ] T28 Recorder in the browser
 - [ ] T29 Delivery metrics on the page

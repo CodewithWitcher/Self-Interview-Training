@@ -14,8 +14,8 @@ dependencies = [
   "numpy",
   "fastembed",
   # Added in M3 by task T26:
-  # "faster-whisper",
-  # "av<19",
+  "faster-whisper",
+  "av<19",
 ]
 
 [dependency-groups]

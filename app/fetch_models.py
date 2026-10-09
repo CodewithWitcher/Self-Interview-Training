@@ -20,13 +20,26 @@ def fetch_embedding_model(settings) -> None:
     print(f"Embedding model ready: {dim} dimensions")
 
 
+def fetch_speech_model(settings) -> None:
+    from app import voice
+
+    target = voice.model_dir(settings)
+    target.mkdir(parents=True, exist_ok=True)
+    print(f"Speech model {settings.whisper_model}: downloading into {target}")
+    voice.load_model(settings, local_files_only=False)
+    print("Speech model ready")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Download model files into the data folder.")
-    parser.parse_args(argv)
+    parser.add_argument("--voice", action="store_true", help="also download the speech model")
+    args = parser.parse_args(argv)
     settings = load_settings()
     try:
         fetch_embedding_model(settings)
-    except (ValueError, OSError) as exc:
+        if args.voice:
+            fetch_speech_model(settings)
+    except (ValueError, OSError, RuntimeError) as exc:
         print(f"Download failed: {exc}".encode("ascii", "replace").decode("ascii"))
         print("Check the network connection and try again.")
         return 1
