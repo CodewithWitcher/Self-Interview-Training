@@ -48,7 +48,7 @@ M1, core loop:
 
 M2, retention and targeting:
 
-- [ ] T22 Job description mode
+- [x] T22 Job description mode
 - [ ] T23 Spaced repetition
 - [ ] T24 Readiness and progress
 - [ ] T25 v1 hardening

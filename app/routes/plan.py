@@ -8,6 +8,9 @@ from app.routes import load_profile, model_picker, parse_model, redirect, render
 
 router = APIRouter()
 
+JD_TITLE_MAX = 120
+JD_TEXT_MAX = 6000
+
 SOURCE_LABELS = {
     "resume": "Resume",
     "jd": "Job description",
@@ -25,6 +28,11 @@ def plan_page(request, conn, profile, status_code=200, **extra):
         "topic_error": None,
         "topic_name": "",
         "topic_kind": "technical",
+        "jd_title": profile["jd_title"] or "",
+        "jd_text": profile["jd_text"] or "",
+        "jd_error": None,
+        "jd_title_max": JD_TITLE_MAX,
+        "jd_text_max": JD_TEXT_MAX,
     }
     context.update(model_picker(conn, profile["id"], request.app.state.settings))
     context.update(extra)
@@ -84,3 +92,38 @@ def set_weight(request: Request, conn: Conn, pid: int, tid: int, weight: str = F
     with conn:
         conn.execute("UPDATE topics SET weight = ? WHERE id = ?", (int(weight), tid))
     return redirect(f"/profiles/{pid}/plan?notice=topic_updated#topic-{tid}")
+
+
+@router.post("/profiles/{pid}/jd")
+def save_jd(
+    request: Request,
+    conn: Conn,
+    pid: int,
+    title: str = Form(""),
+    text: str = Form(""),
+    action: str = Form("save"),
+):
+    profile = load_profile(conn, pid)
+    if action == "clear":
+        with conn:
+            conn.execute("UPDATE profiles SET jd_title = NULL, jd_text = NULL WHERE id = ?", (pid,))
+        return redirect(f"/profiles/{pid}/plan?notice=jd_cleared")
+    clean_title, clean_text = title.strip(), text.strip()
+    error = None
+    if len(clean_title) > JD_TITLE_MAX:
+        error = f"The job title has {len(clean_title)} characters. The limit is {JD_TITLE_MAX}."
+    elif not clean_text:
+        error = "Paste the job description, or press Remove to clear it."
+    elif len(clean_text) > JD_TEXT_MAX:
+        error = (
+            f"The job description has {len(clean_text):,} characters. "
+            f"The limit is {JD_TEXT_MAX:,}. Shorten it and save again."
+        )
+    if error:
+        return plan_page(request, conn, profile, 422, jd_title=title, jd_text=text, jd_error=error)
+    with conn:
+        conn.execute(
+            "UPDATE profiles SET jd_title = ?, jd_text = ? WHERE id = ?",
+            (clean_title or None, clean_text, pid),
+        )
+    return redirect(f"/profiles/{pid}/plan?notice=jd_saved")

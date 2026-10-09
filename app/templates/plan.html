@@ -4,7 +4,22 @@
 <h1>Plan</h1>
 {% if profile.plan_summary %}<p>{{ profile.plan_summary }}</p>{% endif %}
 
-{% block jd %}{% endblock %}
+<h2>Job description</h2>
+<p>Optional. With a job description, the plan marks what the job asks for and your resume does not show as a Gap.</p>
+<form method="post" action="/profiles/{{ profile.id }}/jd" class="stack">
+  {% if jd_error %}<p class="field-error" id="jd-error">{{ jd_error }}</p>{% endif %}
+  <label for="jd-title">Job title, up to {{ jd_title_max }} characters</label>
+  <input id="jd-title" name="title" type="text" maxlength="{{ jd_title_max }}" value="{{ jd_title }}">
+  <label for="jd-text">Job description, up to {{ "{:,}".format(jd_text_max) }} characters</label>
+  <textarea id="jd-text" name="text" rows="8" maxlength="{{ jd_text_max }}" data-counter="jd-count"
+            {% if jd_error %}aria-invalid="true" aria-describedby="jd-error"{% endif %}>{{ jd_text }}</textarea>
+  <p class="counter" id="jd-count" aria-live="polite"></p>
+  <div class="row">
+    <button type="submit" name="action" value="save">Save job description</button>
+    {% if profile.jd_text %}<button type="submit" name="action" value="clear" class="secondary">Remove job description</button>{% endif %}
+  </div>
+  {% if profile.jd_text %}<p class="hint">Saved{% if profile.jd_title %} for {{ profile.jd_title }}{% endif %}. Rebuild the plan to use changes.</p>{% endif %}
+</form>
 
 <h2>{% if topics %}Rebuild the plan{% else %}Build the plan{% endif %}</h2>
 {% if build_error %}<p class="error-box" role="alert">{{ build_error }}</p>{% endif %}
