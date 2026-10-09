@@ -50,6 +50,8 @@ def profile_page(request: Request, conn: sqlite3.Connection, profile, status_cod
         "delete_error": None,
         "active": active,
         "active_position": sessions.progress(conn, active["id"]) if active else None,
+        "due": sessions.due_count(conn, profile["id"], request.app.state.today()),
+        "form_review_only": False,
     }
     context.update(start_form_context(conn, profile, request.app.state.settings))
     context.update(extra)

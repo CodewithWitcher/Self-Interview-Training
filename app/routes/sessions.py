@@ -79,6 +79,7 @@ async def start(request: Request, conn: Conn, pid: int):
             form_topics=topic_ids,
             form_count=int(count) if count.isdigit() else 5,
             form_difficulty=difficulty,
+            form_review_only=review_only,
             start_error=message,
         )
 

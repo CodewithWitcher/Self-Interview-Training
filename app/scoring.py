@@ -4,6 +4,7 @@ Rounding is always half up. Python's round() rounds half to even and is never us
 """
 
 from collections.abc import Iterable, Mapping
+from datetime import date, timedelta
 
 MAX_FOLLOW_UPS = 2
 PASS_SCORE = 75
@@ -67,3 +68,18 @@ def weakest_dimension(turns: Iterable[Mapping]) -> str | None:
         return None
     lowest = min(totals)
     return DIMENSIONS[totals.index(lowest)]
+
+
+def srs_next(step: int | None, score: int, today: date) -> tuple[int | None, date | None]:
+    """The new review (step, due date) after an attempt, by the fixed ladder of PS 7.3."""
+    if step is None:
+        if score >= PASS_SCORE:
+            return None, None
+        return 0, today + timedelta(days=SRS_LADDER_DAYS[0])
+    if score >= PASS_SCORE:
+        if step == len(SRS_LADDER_DAYS) - 1:
+            return None, None
+        return step + 1, today + timedelta(days=SRS_LADDER_DAYS[step + 1])
+    if score >= REPEAT_SCORE:
+        return step, today + timedelta(days=SRS_LADDER_DAYS[step])
+    return 0, today + timedelta(days=SRS_LADDER_DAYS[0])

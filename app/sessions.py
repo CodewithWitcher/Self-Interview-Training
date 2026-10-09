@@ -8,7 +8,13 @@ from app import llm, questions
 from app.config import Settings
 from app.db import utc_now
 from app.llm import ModelOption
-from app.scoring import MAX_FOLLOW_UPS, QUESTIONS_PER_CALL, attempt_score, weakest_dimension
+from app.scoring import (
+    MAX_FOLLOW_UPS,
+    QUESTIONS_PER_CALL,
+    attempt_score,
+    srs_next,
+    weakest_dimension,
+)
 
 
 def last_used_model(conn: sqlite3.Connection, profile_id: int) -> tuple[str, str] | None:
@@ -222,7 +228,17 @@ def finish_attempt(conn: sqlite3.Connection, attempt_id: int, today: date) -> No
 
 
 def update_schedule(conn: sqlite3.Connection, question_id: int, score: int, today: date) -> None:
-    """Review schedule update. Filled in by the spaced repetition task."""
+    """Move the question along the review ladder (F12, PS 7.3)."""
+    step = conn.execute("SELECT srs_step FROM questions WHERE id = ?", (question_id,)).fetchone()[0]
+    new_step, due = srs_next(step, score, today)
+    conn.execute(
+        "UPDATE questions SET srs_step = ?, srs_due = ? WHERE id = ?",
+        (new_step, due.isoformat() if due else None, question_id),
+    )
+
+
+def due_count(conn: sqlite3.Connection, profile_id: int, today: date) -> int:
+    return len(due_questions(conn, profile_id, today))
 
 
 def save_answer(conn: sqlite3.Connection, turn_id: int, attempt_id: int, text: str) -> None:
