@@ -321,11 +321,15 @@ Append a row for every run. Never delete rows.
 | 2026-10-08 | Windows 11 | Every worked example in [prompts and scoring](04-prompts-and-scoring.md), sections 7 to 10, the chunking rule and the filler pattern | Pass |
 | 2026-10-08 | Windows 11 | A text PDF written with reportlab and read with pypdf 6.19.0. A blank PDF, a locked PDF, a broken PDF. | Pass. Blank gives empty text. Locked raises `FileNotDecryptedError`. Broken raises `PdfStreamError`. Both extend `pypdf.errors.PyPdfError`. |
 | 2026-10-08 | Windows 11 | anthropic 1.12.1: the parameters of `beta.messages.parse` used in the [architecture](02-architecture.md), section 7.3 | Pass by inspection of the installed SDK. No request was sent. |
+| 2026-10-09 | Linux container, not a supported system | Default tests (`pytest`), ruff check and format check, with the packages of `uv.lock` installed into a virtual environment, because `uv sync` refuses a platform outside the lock | Pass |
+| 2026-10-09 | Linux container | `uv run python -m app.fetch_models` | Fail. The container's network policy blocks huggingface.co. The `models` tests are left to CI. |
+| 2026-10-09 | Linux container, Chromium 141 through Playwright | The app in fake mode, driven by the keyboard and the mouse: create a profile, upload the PDF fixture, build the plan, add the job description and see a Gap, a session with a follow-up, a `#down` answer with Retry, end early with the confirmation, summary, progress, Test model. Skip link, visible focus, no request to any host but 127.0.0.1. | Pass. Stands in for steps 2 to 10, 13 and 14 until they run on Windows and a Mac. |
+| 2026-10-09 | Linux container | A request to Ollama or Claude | Not run. ollama.com and the Ollama registry are blocked, and no API key is present. |
 | open | Mac | Anything at all | Not run |
 | open | Both | A request to a local Ollama model | Not run. No local model is pulled on the reference machine. |
 | open | Both | A request to Claude | Not run |
 | open | Both | Browser recording, microphone permission, speech output | Not run |
-| open | Both | The app itself | Not built yet |
+| open | Both | The app itself on Windows and on a Mac | Built through T25. Not yet run on either system. |
 
 ## 10. Troubleshooting
 

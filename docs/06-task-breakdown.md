@@ -44,14 +44,14 @@ M1, core loop:
 - [x] T18 Finish, resume, end, summary
 - [x] T19 Status page, complete
 - [ ] T20 Golden set. Fixture and live test written. Blocked: needs owner item 3 or 4 to run, see SG 9.3.
-- [ ] T21 M1 smoke and README
+- [ ] T21 M1 smoke and README. README done. Blocked: needs T20 and owner items 3 and 5.
 
 M2, retention and targeting:
 
 - [x] T22 Job description mode
 - [x] T23 Spaced repetition
 - [x] T24 Readiness and progress
-- [ ] T25 v1 hardening
+- [ ] T25 v1 hardening. Tests, README and a browser pass done. Blocked: smoke steps 13 and 14 need Windows and a Mac (owner item 5).
 
 M3, voice:
 

@@ -71,11 +71,13 @@ async def start(request: Request, conn: Conn, pid: int):
     choice = parse_model(str(form.get("model", "")), settings)
 
     def fail(message: str):
+        keep_model = {"model_selected": str(form.get("model"))} if choice else {}
         return profile_page(
             request,
             conn,
             profile,
             422,
+            **keep_model,
             form_topics=topic_ids,
             form_count=int(count) if count.isdigit() else 5,
             form_difficulty=difficulty,

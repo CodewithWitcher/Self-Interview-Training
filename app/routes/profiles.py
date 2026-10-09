@@ -48,6 +48,7 @@ def profile_page(request: Request, conn: sqlite3.Connection, profile, status_cod
     context = {
         "profile": profile,
         "delete_error": None,
+        "delete_confirm": "",
         "active": active,
         "active_position": sessions.progress(conn, active["id"]) if active else None,
         "due": sessions.due_count(conn, profile["id"], request.app.state.today()),
@@ -75,6 +76,7 @@ def delete_profile(request: Request, conn: Conn, pid: int, confirm: str = Form("
             profile,
             422,
             delete_error="The name you typed does not match. Nothing was deleted.",
+            delete_confirm=confirm,
         )
     with conn:
         conn.execute("DELETE FROM profiles WHERE id = ?", (pid,))

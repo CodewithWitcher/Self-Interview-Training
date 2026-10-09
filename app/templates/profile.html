@@ -57,7 +57,7 @@
       data-confirm="Delete this profile and everything in it? This cannot be undone.">
   <p class="hint">This removes the resume, plan, questions, sessions and answers of this profile.</p>
   <label for="confirm">Type the profile name, {{ profile.name }}, to confirm</label>
-  <input id="confirm" name="confirm" type="text" autocomplete="off"
+  <input id="confirm" name="confirm" type="text" autocomplete="off" value="{{ delete_confirm }}"
          {% if delete_error %}aria-invalid="true" aria-describedby="confirm-error"{% endif %}>
   {% if delete_error %}<p class="field-error" id="confirm-error">{{ delete_error }}</p>{% endif %}
   <button type="submit" class="danger">Delete profile</button>
