@@ -1,0 +1,23 @@
+{% extends "profile_base.html" %}
+{% block title %}{{ profile.name }}{% endblock %}
+{% block content %}
+<h1>{{ profile.name }}</h1>
+
+<h2>Get ready</h2>
+<ul>
+  <li><a href="/profiles/{{ profile.id }}/resume">Resume</a>:
+    {% if profile.resume_text %}saved{% if profile.resume_name %} from {{ profile.resume_name }}{% endif %}{% else %}not added yet{% endif %}</li>
+  <li><a href="/profiles/{{ profile.id }}/plan">Plan</a>{% if profile.plan_summary %}: {{ profile.plan_summary }}{% endif %}</li>
+</ul>
+
+<h2>Delete this profile</h2>
+<form method="post" action="/profiles/{{ profile.id }}/delete" class="stack"
+      data-confirm="Delete this profile and everything in it? This cannot be undone.">
+  <p class="hint">This removes the resume, plan, questions, sessions and answers of this profile.</p>
+  <label for="confirm">Type the profile name, {{ profile.name }}, to confirm</label>
+  <input id="confirm" name="confirm" type="text" autocomplete="off"
+         {% if delete_error %}aria-invalid="true" aria-describedby="confirm-error"{% endif %}>
+  {% if delete_error %}<p class="field-error" id="confirm-error">{{ delete_error }}</p>{% endif %}
+  <button type="submit" class="danger">Delete profile</button>
+</form>
+{% endblock %}
