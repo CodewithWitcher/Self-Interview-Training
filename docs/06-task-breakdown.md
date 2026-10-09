@@ -38,7 +38,7 @@ M1, core loop:
 - [x] T12 Scoring core
 - [x] T13 Fake provider
 - [x] T14 Prep plan
-- [ ] T15 Question generation
+- [x] T15 Question generation
 - [ ] T16 Start a session
 - [ ] T17 Answer, score, follow up
 - [ ] T18 Finish, resume, end, summary
