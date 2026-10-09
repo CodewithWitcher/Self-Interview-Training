@@ -163,12 +163,26 @@ def real(settings):
     return s
 
 
+def raw_segments(real, data):
+    """What the recogniser returned before the guards, for a readable failure."""
+    import io
+
+    segments, info = voice.load_model(real).transcribe(
+        io.BytesIO(data), language="en", vad_filter=True
+    )
+    rows = [f"{s.start:.2f}-{s.end:.2f} {s.text!r}" for s in segments]
+    return f"duration {info.duration:.2f}: " + "; ".join(rows)
+
+
 @pytest.mark.models
 def test_fixture_transcript(real):
-    t = voice.transcribe((FIXTURES / "speech_sample.webm").read_bytes(), real)
-    lowered = t.text.lower()
-    assert "tuple is immutable" in lowered
-    assert "dictionary key" in lowered
+    data = (FIXTURES / "speech_sample.webm").read_bytes()
+    try:
+        t = voice.transcribe(data, real)
+    except voice.VoiceError as exc:
+        pytest.fail(f"{exc} Raw segments: {raw_segments(real, data)}")
+    assert "tuple is immutable" in t.text.lower(), raw_segments(real, data)
+    assert "dictionary key" in t.text.lower()
     m = voice.delivery_metrics(t.segments, t.text)
     assert 800 <= m.first_word_delay_ms <= 1800
 
