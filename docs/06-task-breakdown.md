@@ -31,7 +31,7 @@ M0, skeleton:
 M1, core loop:
 
 - [x] T07 Profiles
-- [ ] T08 Embeddings
+- [x] T08 Embeddings
 - [ ] T09 Resume intake
 - [ ] T10 Model layer
 - [ ] T11 Prompts and schemas

@@ -13,7 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import PlainTextResponse
 
-from app import db
+from app import db, embeddings
 from app.config import Settings, load_settings
 from app.routes import profiles, render, status
 
@@ -30,9 +30,13 @@ def startup(settings: Settings) -> None:
     conn = db.connect(settings.db_path)
     try:
         version = db.migrate(conn)
+        log.info("database ready at version %s", version)
+        try:
+            embeddings.backfill(conn, settings)
+        except embeddings.EmbeddingModelMissing:
+            log.warning("embedding model missing, backfill skipped")
     finally:
         conn.close()
-    log.info("database ready at version %s", version)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

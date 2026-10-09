@@ -91,7 +91,9 @@ def check_embedding_model(settings: Settings) -> Check:
     name = "Embedding model"
     if settings.dev_fake:
         return Check(name, False, None, "Skipped in fake mode")
-    if any((settings.models_dir / "fastembed").rglob("*.onnx")):
+    from app.embeddings import model_present
+
+    if model_present(settings):
         return Check(name, False, True, "all-MiniLM-L6-v2 is downloaded")
     return Check(name, False, False, "Not downloaded. Run: uv run python -m app.fetch_models")
 

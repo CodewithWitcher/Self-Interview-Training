@@ -177,7 +177,7 @@ Route handlers validate input and call these modules. SQL lives in these modules
 | `fetch_models.py` | Downloads model files into `data/models/` | `main()` |
 | `llm.py` | The model layer, section 7 | `chat(...)`, `list_models(settings)`, `LLMError` and subclasses |
 | `prompts.py` | Reply schemas and prompt builders | `Plan`, `QuestionBatch`, `Evaluation`, `plan_prompt(...)`, `questions_prompt(...)`, `evaluation_prompt(...)` |
-| `embeddings.py` | Embedding and similarity | `embed(texts)`, `to_blob(vec)`, `from_blob(blob)`, `top_k(query, vectors, k)`, `backfill(conn)` |
+| `embeddings.py` | Embedding and similarity | `embed(texts, settings)`, `to_blob(vec)`, `from_blob(blob)`, `top_k(query, vectors, k)`, `backfill(conn, settings)`. The settings argument chooses the fake embedder and the model folder. |
 | `resume.py` | Text extraction, chunking, saving | `extract_text(filename, data)`, `chunk_text(text)`, `save_resume(conn, profile_id, text, name)` |
 | `plan.py` | Building and updating the plan | `build_plan(conn, profile_id, provider, model)`, `normalise_plan(plan, has_jd)` |
 | `questions.py` | Generating and de-duplicating questions | `generate(conn, topic, n, difficulty, provider, model, rng)`, `drop_duplicates(candidates, existing)` |
