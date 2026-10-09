@@ -35,7 +35,7 @@ M1, core loop:
 - [x] T09 Resume intake
 - [x] T10 Model layer
 - [x] T11 Prompts and schemas
-- [ ] T12 Scoring core
+- [x] T12 Scoring core
 - [ ] T13 Fake provider
 - [ ] T14 Prep plan
 - [ ] T15 Question generation
