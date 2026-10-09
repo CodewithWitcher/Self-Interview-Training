@@ -9,6 +9,7 @@ jobs:
   test:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +23,8 @@ jobs:
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run pytest
+      # A test that runs past 60 seconds dumps the stack of every thread.
+      - run: uv run pytest -v -o faulthandler_timeout=60
       - name: Cache model files
         uses: actions/cache@v6
         with:
