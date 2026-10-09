@@ -26,7 +26,7 @@ M0, skeleton:
 - [x] T03 Database
 - [x] T04 Web shell and security
 - [x] T05 Status page and health command
-- [ ] T06 CI on Windows and Mac
+- [ ] T06 CI on Windows and Mac. Workflow written. Blocked: needs owner item 2, a push and two green jobs.
 
 M1, core loop:
 
@@ -43,7 +43,7 @@ M1, core loop:
 - [x] T17 Answer, score, follow up
 - [x] T18 Finish, resume, end, summary
 - [x] T19 Status page, complete
-- [ ] T20 Golden set
+- [ ] T20 Golden set. Fixture and live test written. Blocked: needs owner item 3 or 4 to run, see SG 9.3.
 - [ ] T21 M1 smoke and README
 
 M2, retention and targeting:
