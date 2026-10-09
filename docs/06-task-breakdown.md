@@ -41,7 +41,7 @@ M1, core loop:
 - [x] T15 Question generation
 - [x] T16 Start a session
 - [x] T17 Answer, score, follow up
-- [ ] T18 Finish, resume, end, summary
+- [x] T18 Finish, resume, end, summary
 - [ ] T19 Status page, complete
 - [ ] T20 Golden set
 - [ ] T21 M1 smoke and README

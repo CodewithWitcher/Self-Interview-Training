@@ -290,3 +290,29 @@ def change_model(
         if attempt:
             target = attempt_url(pid, sid, attempt["id"])
     return redirect(f"{target}?notice=model_changed")
+
+
+@router.post("/profiles/{pid}/sessions/{sid}/end")
+def end(request: Request, conn: Conn, pid: int, sid: int):
+    load_profile(conn, pid)
+    session = load_session(conn, pid, sid)
+    if session["status"] == "completed":
+        return redirect(f"/profiles/{pid}/sessions/{sid}/summary")
+    if sessions.end(conn, sid, request.app.state.today()):
+        return redirect(f"/profiles/{pid}/sessions/{sid}/summary")
+    return redirect(f"/profiles/{pid}?notice=session_ended")
+
+
+@router.get("/profiles/{pid}/sessions/{sid}/summary")
+def summary(request: Request, conn: Conn, pid: int, sid: int):
+    profile = load_profile(conn, pid)
+    session = load_session(conn, pid, sid)
+    if session["status"] != "completed":
+        return redirect(f"/profiles/{pid}/sessions/{sid}")
+    return render(
+        request,
+        "summary.html",
+        profile=profile,
+        session=session,
+        **sessions.summary(conn, sid),
+    )

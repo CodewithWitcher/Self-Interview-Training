@@ -8,7 +8,7 @@ from app import llm, questions
 from app.config import Settings
 from app.db import utc_now
 from app.llm import ModelOption
-from app.scoring import MAX_FOLLOW_UPS, QUESTIONS_PER_CALL, attempt_score
+from app.scoring import MAX_FOLLOW_UPS, QUESTIONS_PER_CALL, attempt_score, weakest_dimension
 
 
 def last_used_model(conn: sqlite3.Connection, profile_id: int) -> tuple[str, str] | None:
@@ -278,3 +278,58 @@ def change_model(conn: sqlite3.Connection, session_id: int, provider: str, model
             "UPDATE sessions SET provider = ?, model = ? WHERE id = ?",
             (provider, model, session_id),
         )
+
+
+def end(conn: sqlite3.Connection, session_id: int, today: date) -> bool:
+    """End a session early by the three rules of AR 6.4, in one transaction.
+
+    Returns True when the session still exists and is completed, False when it was deleted.
+    """
+    with conn:
+        attempts = conn.execute(
+            "SELECT id FROM attempts WHERE session_id = ? AND status != 'done' ORDER BY ord",
+            (session_id,),
+        ).fetchall()
+        for attempt in attempts:
+            conn.execute(
+                "DELETE FROM turns WHERE attempt_id = ? AND score IS NULL", (attempt["id"],)
+            )
+            scored = conn.execute(
+                "SELECT count(*) FROM turns WHERE attempt_id = ?", (attempt["id"],)
+            ).fetchone()[0]
+            if scored:
+                finish_attempt(conn, attempt["id"], today)
+            else:
+                conn.execute("DELETE FROM attempts WHERE id = ?", (attempt["id"],))
+        left = conn.execute(
+            "SELECT count(*) FROM attempts WHERE session_id = ?", (session_id,)
+        ).fetchone()[0]
+        if left == 0:
+            conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
+            return False
+        conn.execute(
+            "UPDATE sessions SET status = 'completed', completed_at = coalesce(completed_at, ?) "
+            "WHERE id = ?",
+            (utc_now(), session_id),
+        )
+    return True
+
+
+def summary(conn: sqlite3.Connection, session_id: int) -> dict:
+    attempts = conn.execute(
+        "SELECT a.*, q.text, t.name AS topic_name FROM attempts a "
+        "JOIN questions q ON q.id = a.question_id JOIN topics t ON t.id = q.topic_id "
+        "WHERE a.session_id = ? ORDER BY a.ord",
+        (session_id,),
+    ).fetchall()
+    turns = conn.execute(
+        "SELECT tu.* FROM turns tu JOIN attempts a ON a.id = tu.attempt_id "
+        "WHERE a.session_id = ? AND a.status = 'done'",
+        (session_id,),
+    ).fetchall()
+    scores = [a["score"] for a in attempts if a["score"] is not None]
+    return {
+        "attempts": attempts,
+        "average": attempt_score(scores) if scores else None,
+        "weakest": weakest_dimension(turns),
+    }

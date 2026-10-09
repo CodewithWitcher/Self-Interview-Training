@@ -1,0 +1,28 @@
+{% extends "profile_base.html" %}
+{% block title %}Session summary - {{ profile.name }}{% endblock %}
+{% block content %}
+{% include "_badge.html" %}
+<h1>Session summary</h1>
+<p class="muted">{{ session.difficulty | capitalize }} questions, scored by {{ session.provider }}:{{ session.model }}.</p>
+{% if average is not none %}
+<p><span class="score">Session average {{ average }}</span> <span class="muted">out of 100</span></p>
+{% endif %}
+{% if weakest %}
+<p>Weakest rubric dimension: <strong>{{ weakest }}</strong>.</p>
+{% endif %}
+<table>
+  <caption class="visually-hidden">Questions in this session</caption>
+  <thead><tr><th scope="col">#</th><th scope="col">Question</th><th scope="col">Topic</th><th scope="col">Score</th></tr></thead>
+  <tbody>
+  {% for a in attempts %}
+  <tr>
+    <td>{{ a.ord }}</td>
+    <td><a href="/profiles/{{ profile.id }}/sessions/{{ session.id }}/attempts/{{ a.id }}">{{ a.text }}</a>{% if a.is_review %} <span class="muted">(review)</span>{% endif %}</td>
+    <td>{{ a.topic_name }}</td>
+    <td>{{ a.score }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p><a class="button" href="/profiles/{{ profile.id }}">Back to {{ profile.name }}</a></p>
+{% endblock %}
