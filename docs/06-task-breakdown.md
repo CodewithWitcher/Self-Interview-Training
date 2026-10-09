@@ -60,7 +60,7 @@ M3, voice:
 - [ ] T28 Recorder in the browser. Built, and checked in headless Chromium with a fake microphone. Blocked: the by-hand check needs Chrome, Edge and Safari on Windows and a Mac.
 - [x] T29 Delivery metrics on the page
 - [ ] T30 Read aloud. Built. Blocked: the by-hand check needs each system and browser.
-- [ ] T31 M3 smoke
+- [ ] T31 M3 smoke. Blocked: needs owner items 5 and 6 and the speech model on a real machine.
 
 ## 3. Needs the owner
 
