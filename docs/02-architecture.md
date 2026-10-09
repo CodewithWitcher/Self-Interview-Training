@@ -275,10 +275,14 @@ Next links to the session route above. The profile home links to it too while a 
 ### 7.1 Contract
 
 ```python
-def chat(provider: str, model: str, system: str, user: str,
-         schema: type[T], *, creative: bool = False) -> T: ...
+def chat(
+    provider: str, model: str, system: str, user: str, schema: type[T], *, creative: bool = False
+) -> T: ...
+
 
 def list_models(settings: Settings) -> list[ModelOption]: ...
+
+
 # ModelOption: provider, model, label, is_local
 ```
 
@@ -318,12 +322,12 @@ The request shape follows Ollama's API reference. It has not been exercised yet,
 client = anthropic.Anthropic(timeout=settings.llm_timeout_s, max_retries=1)
 
 response = client.beta.messages.parse(
-    model=model,                                   # default "claude-opus-5-5"
+    model=model,  # default "claude-opus-5-5"
     max_tokens=16000,
     system=system,
     messages=[{"role": "user", "content": user}],
-    output_format=schema,                          # the Pydantic class
-    output_config={"effort": settings.anthropic_effort},   # default "medium"
+    output_format=schema,  # the Pydantic class
+    output_config={"effort": settings.anthropic_effort},  # default "medium"
     betas=["server-side-fallback-2026-07-01"],
     fallbacks="default",
 )

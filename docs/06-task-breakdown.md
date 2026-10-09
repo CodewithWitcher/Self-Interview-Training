@@ -22,7 +22,7 @@ Tick a line in the commit that completes the task.
 M0, skeleton:
 
 - [x] T01 Repository scaffold
-- [ ] T02 Settings
+- [x] T02 Settings
 - [ ] T03 Database
 - [ ] T04 Web shell and security
 - [ ] T05 Status page and health command
